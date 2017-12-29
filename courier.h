@@ -8,10 +8,9 @@ namespace rrl {
     class Courier {
     public:
         Courier(Connection &conn);
-        ~Courier();
 
-        UnknownMessage receive() {
-            UnknownMessage msg;
+        msg::Any receive() {
+            msg::Any msg;
             msg.read(conn_);
             return msg;
         }

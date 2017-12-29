@@ -46,6 +46,9 @@
     <ClInclude Include="locallibrary.h">
       <Filter>linkage\library\local</Filter>
     </ClInclude>
+    <ClInclude Include="message_definitions.h">
+      <Filter>communication\message</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="os specific">

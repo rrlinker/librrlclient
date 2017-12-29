@@ -12,18 +12,14 @@
 namespace rrl {
 
     enum class MessageType : uint64_t {
-        Version = 0x01ULL,
-        Authorization = 0x0ALL,
-
-        OK = 0x0CULL << 56,
-
-        RequestAuthorize = (1ULL << 63) | 0x0ALL,
+#define X(TYPE, VALUE, _) TYPE = VALUE,
+#include "message_definitions.h"
+#undef X
     };
 
     struct MessageHeader {
         size_t size;
         MessageType type;
-
         MessageHeader(size_t size, MessageType type) noexcept
             : size(size)
             , type(type)
@@ -31,8 +27,12 @@ namespace rrl {
     };
 
     template<typename Body>
-    struct MessageWrapper : private Body::value_type {
+    struct MessageWrapper : public Body::value_type {
+    private:
         MessageHeader header;
+    public:
+        size_t size() const { return header.size; }
+        MessageType type() const { return header.type; }
         typename Body::value_type& body() { return *this; }
         typename Body::value_type const& body() const { return *this; }
 
@@ -52,61 +52,76 @@ namespace rrl {
 
         void write(Connection &conn) {
             conn << header.size << header.type;
-            Body::write(conn, body());
+            Body::write(conn, this);
         }
 
         void read(Connection &conn) {
             conn >> header.size >> header.type;
-            Body::read(conn, header, body());
+            Body::read(conn, header, this);
         }
     };
-
-    struct UnknownMessageBody {
-        using value_type = std::vector<std::byte>;
-        static void write(Connection &conn, value_type const &value) {
-            conn.send(reinterpret_cast<std::byte const*>(value.data()), value.size());
-        }
-        static void read(Connection &conn, MessageHeader const &header, value_type &value) {
-            value.resize(header.size);
-            conn.recv(reinterpret_cast<std::byte*>(value.data()), value.size());
-        }
-    };
-
-    struct UnknownMessage : public MessageWrapper<UnknownMessageBody> {
-        template<typename T>
-        T const& cast() const { return *reinterpret_cast<T*>(body().data()); }
-    };
-
 
     namespace msg {
 
-        struct EmptyBody {
-            struct value_type {};
-            static void write(Connection&, value_type const&) {}
+        namespace body {
+            struct Any {
+                using value_type = std::vector<std::byte>;
+                static void write(Connection &conn, value_type const &value) {
+                    conn.send(value.data(), value.size());
+                }
+                static void read(Connection &conn, MessageHeader const &header, value_type &value) {
+                    value.resize(header.size);
+                    conn.recv(value.data(), value.size());
+                }
+            };
+
+            struct Empty {
+                struct value_type {};
+                static void write(Connection&, value_type const&) {}
+                static void read(Connection&, value_type&) {}
+            };
+
+            template<typename T>
+            struct Value {
+                struct value_type { T value; };
+                static void write(Connection &conn, value_type const &value) {
+                    conn.send(reinterpret_cast<std::byte const*>(&value.value), sizeof(value.value));
+                }
+                static void read(Connection &conn, value_type &value) {
+                    conn.recv(reinterpret_cast<std::byte*>(&value.value), sizeof(value.value));
+                }
+            };
+
+            struct Token {
+                using value_type = rrl::Token;
+                static void write(Connection &conn, value_type const &value) {
+                    conn.send(value.data(), value.size());
+                }
+                static void read(Connection &conn, value_type &value) {
+                    conn.recv(value.data(), value.size());
+                }
+            };
+
+            struct LinkLibrary {
+                using value_type = LinkLibrary;
+                static void write(Connection &conn, value_type const &value) {
+                    conn.send(value.name);
+                }
+                static void read(Connection &conn, value_type &value) {
+                    conn.recv(value.name);
+                }
+                std::string name;
+            };
+        }
+
+        struct Any : MessageWrapper<body::Any> {
+            Any() : MessageWrapper(0, MessageType::Unknown) {}
+            template<typename T>
+            T const& cast() const { return *reinterpret_cast<T const*>(body.data()); }
         };
-
-        template<typename T>
-        struct ValueBody {
-            struct value_type { T value; };
-            static void write(Connection &conn, value_type const &value) {
-                conn.send(reinterpret_cast<std::byte const*>(&value.value), sizeof(value.value));
-            }
-        };
-
-        struct TokenBody {
-            using value_type = Token;
-            static void write(Connection &conn, value_type const &value) {
-                conn.send(value.data(), value.size());
-            }
-        };
-
-        struct LinkLibrary {};
-
-        using Empty = MessageWrapper<EmptyBody>;
-        using RequestAuthorize = Empty;
 
 #define BEGIN_DEFINE_MESSAGE(TYPE, BASE) \
-struct TYPE : MessageWrapper<BASE> { \
+struct TYPE : MessageWrapper<body::BASE> { \
 TYPE() : MessageWrapper(sizeof(TYPE), MessageType::TYPE) {}
 #define END_DEFINE_MESSAGE() };
 
@@ -114,14 +129,27 @@ TYPE() : MessageWrapper(sizeof(TYPE), MessageType::TYPE) {}
 BEGIN_DEFINE_MESSAGE(TYPE, BASE) \
 END_DEFINE_MESSAGE()
 
-        DEFINE_MESSAGE(Version, ValueBody<uint64_t>);
-        DEFINE_MESSAGE(OK, EmptyBody);
-        DEFINE_MESSAGE(Authorization, TokenBody);
+#define X(TYPE, _, BASE) DEFINE_MESSAGE(TYPE, BASE)
+#include "message_definitions.h"
+#undef X
 
 #undef DEFINE_MESSAGE
 #undef END_DEFINE_MESSAGE
 #undef BEGIN_DEFINE_MESSAGE
+
     }
+
+
+    class UnexpectedResponse : public std::runtime_error {
+    public:
+        UnexpectedResponse(msg::Any &&got, MessageType expected)
+            : runtime_error("unexpected response")
+            , got(std::move(got))
+            , expected(expected)
+        {}
+        msg::Any got;
+        MessageType expected;
+    };
 
 }
 

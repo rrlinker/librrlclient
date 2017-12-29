@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <string>
 
 #include "address.h"
 
@@ -14,8 +15,12 @@ namespace rrl {
 
         virtual void connect(Address const &address) = 0;
         virtual void disconnect() = 0;
+
         virtual void send(std::byte const *data, size_t length) = 0;
         virtual void recv(std::byte *data, size_t length) = 0;
+
+        virtual void send(std::string const &str);
+        virtual void recv(std::string &str);
 
         template<typename T>
         Connection& operator<<(T const &value) {
@@ -32,7 +37,7 @@ namespace rrl {
         }
 
         template<typename T>
-        Connection& operator>>(T const &value) {
+        Connection& operator>>(T &value) {
             recv(reinterpret_cast<std::byte*>(&value), sizeof(T));
             return *this;
         }

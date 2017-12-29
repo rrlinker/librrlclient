@@ -3,11 +3,7 @@
 using namespace rrl;
 
 Library::Library(std::string const &name)
-    : name_(name)
-{}
-
-Library::Library(std::string &&name)
-    : name_(std::move(name))
+    : name(name)
 {}
 
 uintptr_t Library::get_symbol_address(std::string const &symbol) {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "connection.h"
+#include "courier.h"
 #include "token.h"
 
 #include <array>
@@ -11,7 +11,7 @@ namespace rrl {
     public:
         Authorizer(Token t);
 
-        void authorize(Connection &connection) const;
+        void authorize(Courier &courier) const;
 
         const Token& token() const { return token_; }
 

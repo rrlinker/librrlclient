@@ -13,10 +13,13 @@ void Librarian::link(Linker &linker, Library &library) {
 }
 
 void Librarian::request_library(Library const &library) {
-    // Request library
-    // Get response
-    // check response, throw exception if no access or w/e
-    msg::LinkLibrary;
+    msg::LinkLibrary msg_link_lib;
+    msg_link_lib.name = library.name;
+    courier_.send(msg_link_lib);
+
+    auto response = courier_.receive();
+    if (response.type() != MessageType::OK)
+        throw UnexpectedResponse(std::move(response), MessageType::OK);
 }
 
 void Librarian::perform_linkage(Linker &linker, Library &library) {

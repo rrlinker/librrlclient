@@ -141,6 +141,7 @@
     <ClInclude Include="message.h" />
     <ClInclude Include="library.h" />
     <ClInclude Include="librarian.h" />
+    <ClInclude Include="message_definitions.h" />
     <ClInclude Include="remotelinker.h" />
     <ClInclude Include="remotelibrary.h" />
     <ClInclude Include="token.h" />

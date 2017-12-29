@@ -9,7 +9,6 @@ namespace rrl {
     class Library {
     public:
         explicit Library(std::string const &name);
-        explicit Library(std::string &&name);
         Library(Library const &other) = delete;
         Library(Library &&other) = default;
 
@@ -19,11 +18,10 @@ namespace rrl {
         uintptr_t get_symbol_address(std::string const &symbol);
         uintptr_t operator[](std::string const &symbol);
 
+        std::string const name;
     protected:
-        std::string name_;
 
         std::unordered_map<std::string, uintptr_t> symbols_;
     };
 
 }
-
