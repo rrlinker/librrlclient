@@ -24,14 +24,12 @@ namespace rrl {
 
         template<typename T>
         Connection& operator<<(T const &value) {
-            std::cout << "<< " << value << '\n';
             send(reinterpret_cast<std::byte const*>(&value), sizeof(T));
             return *this;
         }
 
         template<typename T>
         Connection& operator<<(T &&value) {
-            std::cout << "<< " << (uint64_t)value << '\n';
             send(reinterpret_cast<std::byte const*>(&value), sizeof(T));
             return *this;
         }

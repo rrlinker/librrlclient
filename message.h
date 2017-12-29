@@ -50,14 +50,14 @@ namespace rrl {
             , Body::value_type(std::forward<typename Body::value_type>(value))
         {}
 
-        void write(Connection &conn) {
+        void write(Connection &conn) const {
             conn << header.size << header.type;
-            Body::write(conn, this);
+            Body::write(conn, body());
         }
 
         void read(Connection &conn) {
             conn >> header.size >> header.type;
-            Body::read(conn, header, this);
+            Body::read(conn, header, body());
         }
     };
 
@@ -105,12 +105,12 @@ namespace rrl {
             struct LinkLibrary {
                 using value_type = LinkLibrary;
                 static void write(Connection &conn, value_type const &value) {
-                    conn.send(value.name);
+                    conn.send(reinterpret_cast<std::byte const*>(value.name), sizeof(value.name));
                 }
                 static void read(Connection &conn, value_type &value) {
-                    conn.recv(value.name);
+                    conn.recv(reinterpret_cast<std::byte*>(value.name), sizeof(value.name));
                 }
-                std::string name;
+                char name[64];
             };
         }
 

@@ -14,7 +14,7 @@ void Librarian::link(Linker &linker, Library &library) {
 
 void Librarian::request_library(Library const &library) {
     msg::LinkLibrary msg_link_lib;
-    msg_link_lib.name = library.name;
+    strncpy(msg_link_lib.name, library.name.c_str(), sizeof(msg_link_lib.name));
     courier_.send(msg_link_lib);
 
     auto response = courier_.receive();
@@ -23,8 +23,12 @@ void Librarian::request_library(Library const &library) {
 }
 
 void Librarian::perform_linkage(Linker &linker, Library &library) {
-    // svclinker connection
-    // response
+    msg::Any message;
+    while (true) {
+        message = courier_.receive();
+        switch (message.type()) {
+        }
+    }
 
     // resolve external symbol
     std::string symlib, symbol;
