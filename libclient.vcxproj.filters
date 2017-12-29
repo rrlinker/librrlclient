@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="authorizer.h">
+      <Filter>communication\authorization</Filter>
+    </ClInclude>
+    <ClInclude Include="locallinker.h">
+      <Filter>linkage\linker\local</Filter>
+    </ClInclude>
+    <ClInclude Include="remotelinker.h">
+      <Filter>linkage\linker\remote</Filter>
+    </ClInclude>
+    <ClInclude Include="linker.h">
+      <Filter>linkage\linker</Filter>
+    </ClInclude>
+    <ClInclude Include="address.h">
+      <Filter>communication\address</Filter>
+    </ClInclude>
+    <ClInclude Include="connection.h">
+      <Filter>communication\connection\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="ws_connection.h">
+      <Filter>communication\connection\winsock</Filter>
+    </ClInclude>
+    <ClInclude Include="win32exception.h">
+      <Filter>os specific\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="courier.h">
+      <Filter>communication\courier</Filter>
+    </ClInclude>
+    <ClInclude Include="message.h">
+      <Filter>communication\message</Filter>
+    </ClInclude>
+    <ClInclude Include="token.h">
+      <Filter>communication\authorization</Filter>
+    </ClInclude>
+    <ClInclude Include="library.h">
+      <Filter>linkage\library</Filter>
+    </ClInclude>
+    <ClInclude Include="librarian.h">
+      <Filter>linkage\librarian</Filter>
+    </ClInclude>
+    <ClInclude Include="remotelibrary.h">
+      <Filter>linkage\library\remote</Filter>
+    </ClInclude>
+    <ClInclude Include="locallibrary.h">
+      <Filter>linkage\library\local</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="os specific">
+      <UniqueIdentifier>{2cc97270-e483-439b-b8a4-525b73a12a19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="os specific\windows">
+      <UniqueIdentifier>{68b1c857-6dd0-4d8a-bc95-c086b737f901}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="communication">
+      <UniqueIdentifier>{583bab2e-b62c-4639-ad36-9ce44b4f5ee1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="communication\connection">
+      <UniqueIdentifier>{a726ba86-991e-4262-b960-76b511c008f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="communication\connection\interface">
+      <UniqueIdentifier>{01076ef6-5cb5-4b6f-88e7-947efcce307d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="communication\connection\winsock">
+      <UniqueIdentifier>{3e8a5b95-71e5-4d50-9974-9ac2fa9153d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="communication\address">
+      <UniqueIdentifier>{12f534cc-be6b-4e2d-b944-041253a9d6d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="linkage">
+      <UniqueIdentifier>{059a5f92-f0d2-4214-840b-bd6fcdef52e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="linkage\linker">
+      <UniqueIdentifier>{c0a4b67f-fb99-4ad3-81c9-1044c02167dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="linkage\linker\local">
+      <UniqueIdentifier>{b6ff84c4-ddca-42c1-bcba-87ad0581f039}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="linkage\linker\remote">
+      <UniqueIdentifier>{1f08fbd7-aae4-41b3-9042-e4ccb38eb433}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="communication\courier">
+      <UniqueIdentifier>{ee3bf8d5-38d1-4b58-b4fa-cf89a662d76f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="communication\message">
+      <UniqueIdentifier>{1c9993fa-2248-4ad5-8ae2-fcf084ec5b26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="communication\authorization">
+      <UniqueIdentifier>{fac907d8-fa83-4293-bec0-fb7281978331}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="linkage\librarian">
+      <UniqueIdentifier>{d653f86e-6a02-41ba-b34a-497481efccbf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="linkage\library">
+      <UniqueIdentifier>{1c447e79-197e-4f69-99c6-c9471e440033}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="linkage\library\local">
+      <UniqueIdentifier>{52552872-6cd1-4dff-aa45-b53845b0f2b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="linkage\library\remote">
+      <UniqueIdentifier>{f8c7c49d-85c1-4724-af44-5fd38198e9b9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="authorizer.cpp">
+      <Filter>communication\authorization</Filter>
+    </ClCompile>
+    <ClCompile Include="connection.cpp">
+      <Filter>communication\connection\interface</Filter>
+    </ClCompile>
+    <ClCompile Include="ws_connection.cpp">
+      <Filter>communication\connection\winsock</Filter>
+    </ClCompile>
+    <ClCompile Include="win32exception.cpp">
+      <Filter>os specific\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="courier.cpp">
+      <Filter>communication\courier</Filter>
+    </ClCompile>
+    <ClCompile Include="message.cpp">
+      <Filter>communication\message</Filter>
+    </ClCompile>
+    <ClCompile Include="library.cpp">
+      <Filter>linkage\library</Filter>
+    </ClCompile>
+    <ClCompile Include="librarian.cpp">
+      <Filter>linkage\librarian</Filter>
+    </ClCompile>
+    <ClCompile Include="locallibrary.cpp">
+      <Filter>linkage\library\local</Filter>
+    </ClCompile>
+    <ClCompile Include="linker.cpp">
+      <Filter>linkage\linker</Filter>
+    </ClCompile>
+    <ClCompile Include="locallinker.cpp">
+      <Filter>linkage\linker\local</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

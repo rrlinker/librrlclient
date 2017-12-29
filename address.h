@@ -1,12 +1,26 @@
 #pragma once
 
+#include <array>
+#include <initializer_list>
 #include <cstddef>
+#include <cstdint>
 
 namespace rrl {
 
     class Address {
-        private:
-            std::byte value;
+    public:
+        Address() = default;
+        Address(const std::array<uint8_t, 16> addr, uint16_t port) noexcept
+            : addr_(addr)
+            , port_(port)
+        {}
+
+        constexpr uint8_t const* addr() const { return addr_.data(); }
+        constexpr uint16_t port() const { return port_; }
+
+    private:
+        std::array<uint8_t, 16> addr_;
+        uint16_t port_;
     };
 
 }

@@ -4,8 +4,8 @@
 
 namespace rrl {
 
-    class RemoteLinker : Linker {
-        public:
+    class RemoteLinker : public Linker {
+    public:
     };
 
 }
