@@ -1,4 +1,4 @@
-#include "connection.h"
+#include <connection.h>
 
 #include <WinSock2.h>
 #include <Ws2ipdef.h>

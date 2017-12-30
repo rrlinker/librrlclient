@@ -69,7 +69,22 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(SolutionDir)librlcom;$(IncludePath)</IncludePath>
+    <LibraryPath>$(OutDir);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(SolutionDir)librlcom;$(IncludePath)</IncludePath>
+    <LibraryPath>$(OutDir);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(SolutionDir)librlcom;$(IncludePath)</IncludePath>
+    <LibraryPath>$(OutDir);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(SolutionDir)librlcom;$(IncludePath)</IncludePath>
+    <LibraryPath>$(OutDir);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
@@ -131,31 +146,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="address.h" />
     <ClInclude Include="authorizer.h" />
-    <ClInclude Include="connection.h" />
-    <ClInclude Include="courier.h" />
     <ClInclude Include="linker.h" />
     <ClInclude Include="locallinker.h" />
     <ClInclude Include="locallibrary.h" />
-    <ClInclude Include="message.h" />
     <ClInclude Include="library.h" />
     <ClInclude Include="librarian.h" />
-    <ClInclude Include="message_definitions.h" />
     <ClInclude Include="remotelinker.h" />
     <ClInclude Include="remotelibrary.h" />
-    <ClInclude Include="token.h" />
     <ClInclude Include="win32exception.h" />
     <ClInclude Include="ws_connection.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="authorizer.cpp" />
-    <ClCompile Include="connection.cpp" />
-    <ClCompile Include="courier.cpp" />
     <ClCompile Include="linker.cpp" />
     <ClCompile Include="locallibrary.cpp" />
     <ClCompile Include="locallinker.cpp" />
-    <ClCompile Include="message.cpp" />
     <ClCompile Include="library.cpp" />
     <ClCompile Include="librarian.cpp" />
     <ClCompile Include="win32exception.cpp" />

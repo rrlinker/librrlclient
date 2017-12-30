@@ -57,9 +57,8 @@ void WSConnection::disconnect() {
     socket_ = INVALID_SOCKET;
 }
 
-void WSConnection::send(const std::byte *data, size_t length) {
+void WSConnection::send(const std::byte *data, uint64_t length) {
     int res;
-    std::cout << "SEND: " << length << '\n';
     do {
         res = ::send(socket_, reinterpret_cast<const char*>(data), length, 0);
         if (res == SOCKET_ERROR)
@@ -69,7 +68,7 @@ void WSConnection::send(const std::byte *data, size_t length) {
     } while (length > 0);
 }
 
-void WSConnection::recv(std::byte *data, size_t length) {
+void WSConnection::recv(std::byte *data, uint64_t length) {
     int res;
     res = ::recv(socket_, reinterpret_cast<char*>(data), length, MSG_WAITALL);
     if (res == SOCKET_ERROR || res == 0)
