@@ -26,25 +26,53 @@ void Librarian::perform_linkage(Linker &linker, Library &library) {
     msg::Any message;
     while (true) {
         message = courier_.receive();
+        if (message.type() == MessageType::OK)
+            break;
         switch (message.type()) {
+        default:
+            throw UnexpectedResponse(std::move(message), MessageType::Unknown);
+        case MessageType::ResolveExternalSymbols:
+            resolve_external_symbols(linker, library, message.cast<msg::ResolveExternalSymbols>());
+            break;
+        case MessageType::ReserveMemorySpaces:
+            reserve_memory_spaces(linker, library, message.cast<msg::ReserveMemorySpaces>());
+            break;
+        case MessageType::CommitMemory:
+            commit_memory(linker, library, message.cast<msg::CommitMemory>());
+            break;
+        case MessageType::Execute:
+            execute(linker, library, message.cast<msg::Execute>());
+            break;
         }
     }
+}
 
-    // resolve external symbol
-    std::string symlib, symbol;
-    uintptr_t addr = linker.resolve_symbol(symlib, symbol);
-    if (!addr) {
-
+void Librarian::resolve_external_symbols(Linker &linker, Library &library, msg::ResolveExternalSymbols const &message) {
+    msg::ResolvedSymbols msg_resolved;
+    msg_resolved.body().reserve(message.body().size());
+    for (auto const& [lib, sym] : message.body()) {
+        msg_resolved.body().emplace_back(linker.resolve_symbol(lib, sym));
     }
+    courier_.send(msg_resolved);
+}
 
-    // ...
-    uintptr_t address;
-    size_t size;
-    address = linker.reserve_memory(address, size);
+void Librarian::reserve_memory_spaces(Linker &linker, Library &library, msg::ReserveMemorySpaces const &message) {
+    msg::ReservedMemory msg_reserved;
+    msg_reserved.body().reserve(message.body().size());
+    for (auto [addr, size] : message.body()) {
+        msg_reserved.body().emplace_back(linker.reserve_memory(addr, size));
+    }
+    courier_.send(msg_reserved);
+}
 
-    std::byte *buf = linker.get_buffer(address, size);
-    int protection;
-    linker.commit_buffer(buf, address, size, protection);
+void Librarian::commit_memory(Linker &linker, Library &library, msg::CommitMemory const &message) {
+    linker.commit_memory(message.address, message.memory, message.protection);
+    msg::OK msg_ok;
+    courier_.send(msg_ok);
+}
+
+void Librarian::execute(Linker &linker, Library &library, msg::Execute const &message) {
+    linker.create_thread(library, message.value);
 }
 
 void Librarian::unlink(Linker &linker, Library const &library) {
