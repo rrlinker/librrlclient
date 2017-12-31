@@ -29,6 +29,10 @@ WSConnection::WSConnection()
     : Connection()
 {}
 
+WSConnection::~WSConnection() {
+    disconnect();
+}
+
 void WSConnection::connect(const Address &address) {
     int err;
 
@@ -48,13 +52,12 @@ void WSConnection::connect(const Address &address) {
 }
 
 void WSConnection::disconnect() {
-    int err;
-
-    err = closesocket(socket_);
-    if (err != 0)
-        throw Win32Exception(WSAGetLastError());
-
-    socket_ = INVALID_SOCKET;
+    if (socket_ != INVALID_SOCKET) {
+        int err = closesocket(socket_);
+        if (err != 0)
+            throw Win32Exception(WSAGetLastError());
+        socket_ = INVALID_SOCKET;
+    }
 }
 
 void WSConnection::send(const std::byte *data, uint64_t length) {
@@ -74,3 +77,4 @@ void WSConnection::recv(std::byte *data, uint64_t length) {
     if (res == SOCKET_ERROR || res == 0)
         throw Win32Exception(WSAGetLastError());
 }
+

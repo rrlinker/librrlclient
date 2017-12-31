@@ -15,6 +15,7 @@ namespace rrl::win {
         static SOCKADDR_INET make_sockaddr(Address const &address);
 
         WSConnection();
+        virtual ~WSConnection();
 
         virtual void connect(Address const &address) override;
         virtual void disconnect() override;
