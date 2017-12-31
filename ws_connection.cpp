@@ -72,9 +72,10 @@ void WSConnection::send(const std::byte *data, uint64_t length) {
 }
 
 void WSConnection::recv(std::byte *data, uint64_t length) {
-    int res;
-    res = ::recv(socket_, reinterpret_cast<char*>(data), length, MSG_WAITALL);
-    if (res == SOCKET_ERROR || res == 0)
-        throw Win32Exception(WSAGetLastError());
+    if (length > 0) {
+        int res = ::recv(socket_, reinterpret_cast<char*>(data), length, MSG_WAITALL);
+        if (res == SOCKET_ERROR || res == 0)
+            throw Win32Exception(WSAGetLastError());
+        }
 }
 
