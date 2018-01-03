@@ -19,8 +19,8 @@ namespace rrl::win {
 
         virtual void connect(Address const &address) override;
         virtual void disconnect() override;
-        virtual void send(std::byte const *data, size_t length) override;
-        virtual void recv(std::byte *data, size_t length) override;
+        virtual void send(std::byte const *data, uint64_t length) override;
+        virtual void recv(std::byte *data, uint64_t length) override;
 
         const WSADATA& WSAData() const { return wsaData_; }
 
