@@ -17,8 +17,8 @@ namespace rrl {
         void request_library(Library const &library);
         void perform_linkage(Linker &linker, Library &library);
 
-        void resolve_external_symbols(Linker &linker, Library &library, msg::ResolveExternalSymbols const &message);
-        void reserve_memory_spaces(Linker &linker, Library &library, msg::ReserveMemorySpaces const &message);
+        void resolve_external_symbol(Linker &linker, Library &library, msg::ResolveExternalSymbol const &message);
+        void reserve_memory_space(Linker &linker, Library &library, msg::ReserveMemorySpace const &message);
         void commit_memory(Linker &linker, Library &library, msg::CommitMemory const &message);
         void execute(Linker &linker, Library &library, msg::Execute const &message);
     
