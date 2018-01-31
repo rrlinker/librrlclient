@@ -8,10 +8,10 @@ Library::Library(std::string const &name)
 
 uintptr_t Library::get_symbol_address(std::string const &symbol) {
     if (auto it = symbols_.find(symbol); it != symbols_.end())
-        return it->second;
+        return it->second.address;
     return 0;
 }
 
-uintptr_t Library::operator[](std::string const & symbol) {
-    return get_symbol_address(symbol);
+Library::Symbol const& Library::operator[](std::string const & symbol) {
+    return symbols_[symbol];
 }
