@@ -2,6 +2,8 @@
 
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
+#include <memory>
 #include <cstdint>
 
 namespace rrl {
@@ -24,13 +26,18 @@ namespace rrl {
         Library& operator=(Library const &other) = delete;
         Library& operator=(Library &&other) = default;
 
-        uintptr_t get_symbol_address(std::string const &symbol);
-        Symbol const& operator[](std::string const &symbol);
+        void add_module_dependency(std::string const &module);
+        void add_library_dependency(Library const &library);
+
+        uintptr_t get_symbol_address(std::string const &symbol) const;
+        Symbol const& operator[](std::string const &symbol) const;
 
         std::string const name;
     protected:
 
         std::unordered_map<std::string, Symbol> symbols_;
+        std::unordered_set<std::string> module_dependencies_;
+        std::unordered_set<std::string> library_dependencies_;
     };
 
 }

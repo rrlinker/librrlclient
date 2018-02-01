@@ -49,7 +49,7 @@ void Librarian::perform_linkage(Linker &linker, Library &library) {
 
 void Librarian::resolve_external_symbol(Linker &linker, Library &library, msg::ResolveExternalSymbol const &message) {
     msg::ResolvedSymbol msg_resolved;
-    msg_resolved.body().value = linker.resolve_symbol(message.body().library, message.body().symbol);
+    msg_resolved.body().value = linker.resolve_symbol(library, message.body().library, message.body().symbol);
     courier_.send(msg_resolved);
 }
 
