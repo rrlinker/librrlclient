@@ -19,6 +19,7 @@ namespace rrl {
 
         void resolve_external_symbol(Linker &linker, Library &library, msg::ResolveExternalSymbol const &message);
         void reserve_memory_space(Linker &linker, Library &library, msg::ReserveMemorySpace const &message);
+        void accept_exported_symbol(Linker &linker, Library &library, msg::ExportSymbol const &message);
         void commit_memory(Linker &linker, Library &library, msg::CommitMemory const &message);
         void execute(Linker &linker, Library &library, msg::Execute const &message);
     

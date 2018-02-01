@@ -34,6 +34,9 @@ void Librarian::perform_linkage(Linker &linker, Library &library) {
         case MessageType::ResolveExternalSymbol:
             resolve_external_symbol(linker, library, message.cast<msg::ResolveExternalSymbol>());
             break;
+        case MessageType::ExportSymbol:
+            accept_exported_symbol(linker, library, message.cast<msg::ExportSymbol>());
+            break;
         case MessageType::ReserveMemorySpace:
             reserve_memory_space(linker, library, message.cast<msg::ReserveMemorySpace>());
             break;
@@ -51,6 +54,10 @@ void Librarian::resolve_external_symbol(Linker &linker, Library &library, msg::R
     msg::ResolvedSymbol msg_resolved;
     msg_resolved.body().value = linker.resolve_symbol(library, message.body().library, message.body().symbol);
     courier_.send(msg_resolved);
+}
+
+void Librarian::accept_exported_symbol(Linker &linker, Library &library, msg::ExportSymbol const &message) {
+    linker.add_export(library, message.body().symbol, message.body().address);
 }
 
 void Librarian::reserve_memory_space(Linker &linker, Library &library, msg::ReserveMemorySpace const &message) {
