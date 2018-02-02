@@ -20,9 +20,9 @@ namespace rrl {
 
             uintptr_t address;
 
-            template<typename T, typename ...Args, typename Fn = T(Args...)>
-            std::invoke_result_t<Fn> operator()(Args... args) const {
-                return *reinterpret_cast<Fn*>(args...);
+            template<typename T, typename ...Args>
+            T call(Args... args) const {
+                return (reinterpret_cast<T(*)(Args...)>(address))(args...);
             }
         };
 
