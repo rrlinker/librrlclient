@@ -21,8 +21,13 @@ namespace rrl {
             uintptr_t address;
 
             template<typename T, typename ...Args>
-            T call(Args... args) const {
-                return (reinterpret_cast<T(*)(Args...)>(address))(args...);
+            T stdcall(Args... args) const {
+                return (reinterpret_cast<T(__stdcall*)(Args...)>(address))(args...);
+            }
+
+            template<typename T, typename ...Args>
+            T ccall(Args... args) const {
+                return (reinterpret_cast<T(__cdecl*)(Args...)>(address))(args...);
             }
         };
 
