@@ -14,13 +14,13 @@ namespace rrl {
     public:
         virtual uint64_t resolve_symbol(Library &library, std::string const &symbol_library, std::string const &symbol_name) = 0;
         virtual void add_export(Library &library, std::string const &symbol, uint64_t address) = 0;
-        virtual uint64_t reserve_memory(uint64_t address, size_t size) const = 0;
-        virtual void commit_memory(uint64_t buffer, std::vector<std::byte> const &memory, uint32_t protection) const = 0;
-        virtual void create_thread(Library &library, uint64_t address) const = 0;
+        virtual uint64_t reserve_memory(Library &library, uint64_t address, size_t size) const;
+        virtual void commit_memory(Library &library, uint64_t buffer, std::vector<std::byte> const &memory, uint32_t protection) const;
+        virtual void create_thread(Library &library, uint64_t address) const;
 
     protected:
         uint64_t resolve_internal_symbol(Library &library, std::string const &symbol_library, std::string const &symbol_name) const;
-        virtual HMODULE get_module_handle(Library &library, std::string const &module) = 0;
+        virtual HMODULE get_module_handle(Library &library, std::string const &module);
 
         std::unordered_map<std::string, Library&> libraries_;
         

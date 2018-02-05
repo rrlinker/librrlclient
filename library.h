@@ -47,8 +47,9 @@ namespace rrl {
         Symbol const& operator[](std::string const &symbol) const;
 
         std::string const name;
+        HANDLE const process;
     protected:
-
+        std::unordered_set<uintptr_t> memory_spaces_;
         std::unordered_map<std::string, Symbol> symbols_;
         std::unordered_set<std::string> module_dependencies_;
         std::unordered_set<std::string> library_dependencies_;
