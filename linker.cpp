@@ -12,6 +12,10 @@ uint64_t Linker::resolve_internal_symbol(Library &library, std::string const &sy
     return 0;
 }
 
+uint64_t Linker::resolve_unresolved_symbol(Library &library, std::string const &symbol_library, std::string const &symbol_name) const {
+    return 0;
+}
+
 uint64_t Linker::reserve_memory(Library &library, uint64_t address, size_t size) const {
     uint64_t memory = reinterpret_cast<uint64_t>(
         VirtualAllocEx(library.process, reinterpret_cast<LPVOID>(address), size, MEM_RESERVE, PAGE_NOACCESS)

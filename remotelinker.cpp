@@ -9,7 +9,20 @@ using namespace rrl;
 DWORD const RemoteLinker::REMOTE_LOAD_LIBRARY_TIMEOUT = 16384;
 
 uint64_t RemoteLinker::resolve_symbol(Library &library, std::string const &symbol_library, std::string const &symbol_name) {
-    return uint64_t();
+    uint64_t proc;
+    // Try Win32 API first
+    HMODULE hLocalHandle = get_module_handle(library, symbol_library);
+    HMODULE hRemoteHandle = remote_module_handles_[symbol_library];
+    if ((proc = reinterpret_cast<uint64_t>(GetProcAddress(hLocalHandle, symbol_name.c_str())))) {
+        return reinterpret_cast<uint64_t>(hRemoteHandle)
+            + (proc - reinterpret_cast<uint64_t>(hLocalHandle));
+    }
+    // Try local libraries
+    if ((proc = resolve_internal_symbol(library, symbol_library, symbol_name))) {
+        return proc;
+    }
+    // Try custom resolver
+    return resolve_unresolved_symbol(library, symbol_library, symbol_name);
 }
 
 void RemoteLinker::add_export(Library &library, std::string const &symbol, uint64_t address) {
@@ -20,7 +33,7 @@ HMODULE RemoteLinker::get_module_handle(Library &library, std::string const &mod
     library.add_module_dependency(module);
     if (remote_module_handles_.find(module) == remote_module_handles_.end()) {
         remote_load_module(library.process, module);
-        remote_module_handles_[module] = get_remote_module_handle(library.process, module);
+        remote_module_handles_[module] = find_remote_module_handle(library.process, module);
     }
     return Linker::get_module_handle(library, module);
 }
@@ -69,7 +82,7 @@ void RemoteLinker::remote_load_module(HANDLE hProcess, std::string const &module
     }
 }
 
-HMODULE RemoteLinker::get_remote_module_handle(HANDLE hProcess, std::string const &module) {
+HMODULE RemoteLinker::find_remote_module_handle(HANDLE hProcess, std::string const &module) {
     HANDLE hModuleSnapshot = NULL;
     bool retry = false;
     DWORD errcode = 0;

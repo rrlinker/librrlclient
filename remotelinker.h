@@ -14,7 +14,7 @@ namespace rrl {
     protected:
         virtual HMODULE get_module_handle(Library &library, std::string const &module) override;
         virtual void remote_load_module(HANDLE hProcess, std::string const &module);
-        virtual HMODULE get_remote_module_handle(HANDLE hProcess, std::string const &module);
+        virtual HMODULE find_remote_module_handle(HANDLE hProcess, std::string const &module);
 
         std::unordered_map<std::string, HMODULE> remote_module_handles_;
 

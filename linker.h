@@ -20,6 +20,7 @@ namespace rrl {
 
     protected:
         uint64_t resolve_internal_symbol(Library &library, std::string const &symbol_library, std::string const &symbol_name) const;
+        uint64_t resolve_unresolved_symbol(Library &library, std::string const &symbol_library, std::string const &symbol_name) const;
         virtual HMODULE get_module_handle(Library &library, std::string const &module);
 
         std::unordered_map<std::string, Library&> libraries_;
