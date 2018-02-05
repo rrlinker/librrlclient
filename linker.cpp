@@ -3,6 +3,14 @@
 
 using namespace rrl;
 
+void Linker::add_unresolved_symbol_resolver(symbol_resolver const &resolver) {
+    symbol_resolvers_.emplace_back(resolver);
+}
+
+void Linker::remove_unresolved_symbol_resolver(symbol_resolver const &resolver) {
+    symbol_resolvers_.remove(resolver);
+}
+
 uint64_t Linker::resolve_internal_symbol(Library &library, std::string const &symbol_library, std::string const &symbol_name) const {
     if (auto it = libraries_.find(symbol_library); it != libraries_.end()) {
         auto const &export_library = it->second;
@@ -13,6 +21,10 @@ uint64_t Linker::resolve_internal_symbol(Library &library, std::string const &sy
 }
 
 uint64_t Linker::resolve_unresolved_symbol(Library &library, std::string const &symbol_library, std::string const &symbol_name) const {
+    for (auto const &resolve : symbol_resolvers_) {
+        if (auto address = resolve(symbol_library, symbol_name); address)
+            return address;
+    }
     return 0;
 }
 
