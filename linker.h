@@ -16,6 +16,10 @@ namespace rrl {
     public:
         using symbol_resolver = std::function<uint64_t(std::string const &library, std::string const &symbol)>;
 
+        Linker() = default;
+        explicit Linker(symbol_resolver resolver);
+        virtual ~Linker();
+
         virtual void set_unresolved_symbol_resolver(symbol_resolver resolver);
         virtual void remove_unresolved_symbol_resolver();
 

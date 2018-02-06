@@ -3,6 +3,12 @@
 
 using namespace rrl;
 
+Linker::Linker(symbol_resolver resolver)
+    : symbol_resolver_(resolver)
+{}
+
+Linker::~Linker() {}
+
 void Linker::set_unresolved_symbol_resolver(symbol_resolver resolver) {
     symbol_resolver_ = std::move(resolver);
 }
