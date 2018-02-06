@@ -1,22 +1,45 @@
 #include "library.h"
+#include "win32exception.h"
 
 using namespace rrl;
+
+DWORD const Library::UNLINK_THREAD_EXIT_CODE = 0x0FF116C;
 
 Library::Library(HANDLE process, std::string const &name)
     : process(process)
     , name(name)
 {}
 
-void Library::add_module_dependency(std::string const &module) {
-    module_dependencies_.emplace(module);
+Library::~Library() {
+    unlink();
 }
 
-void Library::add_library_dependency(Library const &library) {
-    library_dependencies_.emplace(library.name);
+void Library::add_module_dependency(std::string const &module, HMODULE handle) {
+    module_dependencies_.emplace(module, handle);
+}
+
+void Library::add_library_dependency(Library &library) {
+    library_dependencies_.emplace(library.name, library);
+}
+
+void Library::remove_library_dependency(Library &library) {
+    library_dependencies_.erase(library.name);
+}
+
+void Library::add_dependent_library(Library &library) {
+    dependent_libraries_.emplace(library.name, library);
+}
+
+void Library::remove_dependent_library(Library &library) {
+    dependent_libraries_.erase(library.name);
 }
 
 void Library::add_thread(HANDLE hThread) {
     threads_.emplace(hThread);
+}
+
+void Library::add_memory_space(LPVOID address, SIZE_T size) {
+    memory_spaces_.emplace(address, size);
 }
 
 void Library::set_symbol_address(std::string symbol, uintptr_t address) {
@@ -34,4 +57,36 @@ Library::Symbol const& Library::operator[](std::string const &symbol) const {
         return it->second;
     else
         throw std::logic_error("symbol not found");
+}
+
+void Library::unlink() {
+    if (dependent_libraries_.size() > 0) {
+        throw std::logic_error("cannot unlink library with dependent libraries");
+    }
+    // Terminate all threads
+    for (auto it = threads_.begin(); it != threads_.end(); ) {
+        if (!TerminateThread(*it, UNLINK_THREAD_EXIT_CODE)) {
+            throw win::Win32Exception(GetLastError());
+        }
+        it = threads_.erase(it);
+    }
+    // Free modules
+    for (auto it = module_dependencies_.begin(); it != module_dependencies_.end(); ) {
+        if (!FreeLibrary(it->second)) {
+            throw win::Win32Exception(GetLastError());
+        }
+        it = module_dependencies_.erase(it);
+    }
+    // Free memory spaces
+    for (auto it = memory_spaces_.begin(); it != memory_spaces_.end(); ) {
+        if (!VirtualFreeEx(process, it->first, it->second, MEM_RELEASE)) {
+            throw win::Win32Exception(GetLastError());
+        }
+        it = memory_spaces_.erase(it);
+    }
+    // Remove this library from dependent libraries of other libraries
+    for (auto it = library_dependencies_.begin(); it != library_dependencies_.end(); ) {
+        it->second.remove_dependent_library(*this);
+        it = library_dependencies_.erase(it);
+    }
 }

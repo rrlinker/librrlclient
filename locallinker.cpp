@@ -8,10 +8,12 @@ uint64_t LocalLinker::resolve_symbol(Library &library, std::string const &symbol
     HMODULE hModule = get_module_handle(library, symbol_library);
     // Try Win32 API first
     if ((proc = reinterpret_cast<uint64_t>(GetProcAddress(hModule, symbol_name.c_str())))) {
+        library.add_module_dependency(symbol_library, hModule);
         return proc;
     }
     // Try local libraries
     if ((proc = resolve_internal_symbol(library, symbol_library, symbol_name))) {
+        dependency_bind(library, symbol_library);
         return proc;
     }
     // Try custom resolver
@@ -20,7 +22,4 @@ uint64_t LocalLinker::resolve_symbol(Library &library, std::string const &symbol
 
 void LocalLinker::add_export(Library &library, std::string const &symbol, uint64_t address) {
     library.set_symbol_address(symbol, address);
-}
-
-void LocalLinker::unlink(Library &library) {
 }

@@ -16,12 +16,14 @@ namespace rrl {
     protected:
         virtual HMODULE get_module_handle(Library &library, std::string const &module) override;
         virtual void remote_load_module(HANDLE hProcess, std::string const &module);
+        virtual void remote_free_module(HANDLE hProcess, HMODULE hModule);
         virtual HMODULE find_remote_module_handle(HANDLE hProcess, std::string const &module);
 
         std::unordered_map<std::string, HMODULE> remote_module_handles_;
 
     private:
         static DWORD const REMOTE_LOAD_LIBRARY_TIMEOUT;
+        static DWORD const REMOTE_FREE_LIBRARY_TIMEOUT;
     };
 
 }

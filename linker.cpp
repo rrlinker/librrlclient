@@ -20,7 +20,6 @@ void Linker::remove_unresolved_symbol_resolver() {
 uint64_t Linker::resolve_internal_symbol(Library &library, std::string const &symbol_library, std::string const &symbol_name) const {
     if (auto it = libraries_.find(symbol_library); it != libraries_.end()) {
         auto const &export_library = it->second;
-        library.add_library_dependency(export_library);
         return export_library.get_symbol_address(symbol_name);
     }
     return 0;
@@ -32,6 +31,12 @@ uint64_t Linker::resolve_unresolved_symbol(Library &library, std::string const &
     return symbol_resolver_(symbol_library, symbol_name);
 }
 
+void Linker::dependency_bind(Library &dependant, std::string const &dependency) {
+    auto &library_dependency = libraries_.at(dependency);
+    library_dependency.add_dependent_library(dependant);
+    dependant.add_library_dependency(library_dependency);
+}
+
 uint64_t Linker::reserve_memory(Library &library, uint64_t address, size_t size) const {
     uint64_t memory = reinterpret_cast<uint64_t>(
         VirtualAllocEx(library.process, reinterpret_cast<LPVOID>(address), size, MEM_RESERVE, PAGE_NOACCESS)
@@ -39,6 +44,7 @@ uint64_t Linker::reserve_memory(Library &library, uint64_t address, size_t size)
     if (!memory) {
         throw win::Win32Exception(GetLastError());
     }
+    library.add_memory_space((LPVOID)address, size);
     return memory;
 }
 
@@ -76,11 +82,22 @@ void Linker::create_thread(Library &library, uint64_t address) const {
 }
 
 HMODULE Linker::get_module_handle(Library &library, std::string const &module) {
-    library.add_module_dependency(module);
     if (auto it = module_handles_.find(module); it != module_handles_.end()) {
         return it->second;
     }
     HMODULE handle = LoadLibraryA(module.c_str());
     module_handles_[module] = handle;
     return handle;
+}
+
+void Linker::register_library(Library &library) {
+    libraries_.emplace(library.name, library);
+}
+
+void Linker::unlink(Library &library) {
+    library.unlink();
+}
+
+void Linker::unregister_library(Library &library) {
+    libraries_.erase(library.name);
 }

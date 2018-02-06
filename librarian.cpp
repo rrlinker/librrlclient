@@ -10,6 +10,7 @@ Librarian::Librarian(Courier &courier)
 void Librarian::link(Linker &linker, Library &library) {
     request_library(library);
     perform_linkage(linker, library);
+    linker.register_library(library);
 }
 
 void Librarian::request_library(Library const &library) {
@@ -78,4 +79,5 @@ void Librarian::execute(Linker &linker, Library &library, msg::Execute const &me
 
 void Librarian::unlink(Linker &linker, Library &library) {
     linker.unlink(library);
+    linker.unregister_library(library);
 }

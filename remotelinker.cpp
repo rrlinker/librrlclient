@@ -7,6 +7,7 @@
 using namespace rrl;
 
 DWORD const RemoteLinker::REMOTE_LOAD_LIBRARY_TIMEOUT = 16384;
+DWORD const RemoteLinker::REMOTE_FREE_LIBRARY_TIMEOUT = 16384;
 
 uint64_t RemoteLinker::resolve_symbol(Library &library, std::string const &symbol_library, std::string const &symbol_name) {
     uint64_t proc;
@@ -14,11 +15,13 @@ uint64_t RemoteLinker::resolve_symbol(Library &library, std::string const &symbo
     HMODULE hLocalHandle = get_module_handle(library, symbol_library);
     HMODULE hRemoteHandle = remote_module_handles_[symbol_library];
     if ((proc = reinterpret_cast<uint64_t>(GetProcAddress(hLocalHandle, symbol_name.c_str())))) {
+        library.add_module_dependency(symbol_library, hLocalHandle);
         return reinterpret_cast<uint64_t>(hRemoteHandle)
             + (proc - reinterpret_cast<uint64_t>(hLocalHandle));
     }
     // Try local libraries
     if ((proc = resolve_internal_symbol(library, symbol_library, symbol_name))) {
+        dependency_bind(library, symbol_library);
         return proc;
     }
     // Try custom resolver
@@ -30,7 +33,6 @@ void RemoteLinker::add_export(Library &library, std::string const &symbol, uint6
 }
 
 HMODULE RemoteLinker::get_module_handle(Library &library, std::string const &module) {
-    library.add_module_dependency(module);
     if (remote_module_handles_.find(module) == remote_module_handles_.end()) {
         remote_load_module(library.process, module);
         remote_module_handles_[module] = find_remote_module_handle(library.process, module);
@@ -82,6 +84,35 @@ void RemoteLinker::remote_load_module(HANDLE hProcess, std::string const &module
     }
 }
 
+void RemoteLinker::remote_free_module(HANDLE hProcess, HMODULE hModule) {
+    HANDLE hFreeLibThread = CreateRemoteThreadEx(
+        hProcess,
+        NULL,
+        0,
+        reinterpret_cast<LPTHREAD_START_ROUTINE>(FreeLibrary),
+        hModule,
+        0,
+        NULL,
+        NULL
+    );
+    if (!hFreeLibThread) {
+        throw win::Win32Exception(GetLastError());
+    }
+    DWORD result = WaitForSingleObject(hFreeLibThread, REMOTE_FREE_LIBRARY_TIMEOUT);
+    switch (result) {
+    case WAIT_OBJECT_0:
+        break;
+    case WAIT_TIMEOUT:
+        throw std::logic_error("waiting time for remote library get freed has timed out.");
+        break;
+    case WAIT_FAILED:
+        throw win::Win32Exception(GetLastError());
+        break;
+    default:
+        throw std::logic_error("WaitForSingleObject returned unexpected value");
+    }
+}
+
 HMODULE RemoteLinker::find_remote_module_handle(HANDLE hProcess, std::string const &module) {
     HANDLE hModuleSnapshot = NULL;
     bool retry = false;
@@ -110,4 +141,9 @@ HMODULE RemoteLinker::find_remote_module_handle(HANDLE hProcess, std::string con
 }
 
 void RemoteLinker::unlink(Library &library) {
+    Linker::unlink(library);
+    for (auto it = remote_module_handles_.begin(); it != remote_module_handles_.end(); ) {
+        remote_free_module(library.process, it->second);
+        it = remote_module_handles_.erase(it);
+    }
 }

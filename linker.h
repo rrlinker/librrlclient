@@ -29,11 +29,15 @@ namespace rrl {
         virtual void commit_memory(Library &library, uint64_t buffer, std::vector<std::byte> const &memory, uint32_t protection) const;
         virtual void create_thread(Library &library, uint64_t address) const;
 
-        virtual void unlink(Library &library) = 0;
+        virtual void register_library(Library &library);
+        virtual void unlink(Library &library);
+        virtual void unregister_library(Library &library);
 
     protected:
         virtual uint64_t resolve_internal_symbol(Library &library, std::string const &symbol_library, std::string const &symbol_name) const;
         virtual uint64_t resolve_unresolved_symbol(Library &library, std::string const &symbol_library, std::string const &symbol_name) const;
+
+        virtual void dependency_bind(Library &dependant, std::string const &dependency);
 
         virtual HMODULE get_module_handle(Library &library, std::string const &module);
 
