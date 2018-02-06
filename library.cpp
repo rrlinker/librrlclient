@@ -2,8 +2,9 @@
 
 using namespace rrl;
 
-Library::Library(std::string const &name)
-    : name(name)
+Library::Library(HANDLE process, std::string const &name)
+    : process(process)
+    , name(name)
 {}
 
 void Library::add_module_dependency(std::string const &module) {

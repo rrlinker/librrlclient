@@ -3,12 +3,12 @@
 
 using namespace rrl;
 
-void Linker::add_unresolved_symbol_resolver(symbol_resolver const &resolver) {
-    symbol_resolvers_.emplace_back(resolver);
+void Linker::set_unresolved_symbol_resolver(symbol_resolver resolver) {
+    symbol_resolver_ = std::move(resolver);
 }
 
-void Linker::remove_unresolved_symbol_resolver(symbol_resolver const &resolver) {
-    symbol_resolvers_.remove(resolver);
+void Linker::remove_unresolved_symbol_resolver() {
+    symbol_resolver_ = nullptr;
 }
 
 uint64_t Linker::resolve_internal_symbol(Library &library, std::string const &symbol_library, std::string const &symbol_name) const {
@@ -21,11 +21,9 @@ uint64_t Linker::resolve_internal_symbol(Library &library, std::string const &sy
 }
 
 uint64_t Linker::resolve_unresolved_symbol(Library &library, std::string const &symbol_library, std::string const &symbol_name) const {
-    for (auto const &resolve : symbol_resolvers_) {
-        if (auto address = resolve(symbol_library, symbol_name); address)
-            return address;
-    }
-    return 0;
+    if (symbol_resolver_ == nullptr)
+        return 0;
+    return symbol_resolver_(symbol_library, symbol_name);
 }
 
 uint64_t Linker::reserve_memory(Library &library, uint64_t address, size_t size) const {

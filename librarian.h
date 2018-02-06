@@ -11,7 +11,7 @@ namespace rrl {
         Librarian(Courier &courier);
 
         void link(Linker &linker, Library &library);
-        void unlink(Linker &linker, Library const &library);
+        void unlink(Linker &linker, Library &library);
 
     private:
         void request_library(Library const &library);

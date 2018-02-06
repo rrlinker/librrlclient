@@ -104,5 +104,8 @@
     <ClCompile Include="remotelinker.cpp">
       <Filter>linkage\linker\remote</Filter>
     </ClCompile>
+    <ClCompile Include="remotelibrary.cpp">
+      <Filter>linkage\library\remote</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

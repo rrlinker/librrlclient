@@ -6,7 +6,10 @@ namespace rrl {
 
     class LocalLibrary : public Library {
     public:
-        using Library::Library;
+        LocalLibrary(std::string const &name);
+        LocalLibrary(LocalLibrary const &other) = delete;
+        LocalLibrary(LocalLibrary &&other) = default;
+
         using Library::operator=;
     };
 

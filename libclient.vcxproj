@@ -164,6 +164,7 @@
     <ClCompile Include="locallinker.cpp" />
     <ClCompile Include="library.cpp" />
     <ClCompile Include="librarian.cpp" />
+    <ClCompile Include="remotelibrary.cpp" />
     <ClCompile Include="remotelinker.cpp" />
     <ClCompile Include="win32exception.cpp" />
     <ClCompile Include="ws_connection.cpp" />

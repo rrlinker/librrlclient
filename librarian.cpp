@@ -62,12 +62,12 @@ void Librarian::accept_exported_symbol(Linker &linker, Library &library, msg::Ex
 
 void Librarian::reserve_memory_space(Linker &linker, Library &library, msg::ReserveMemorySpace const &message) {
     msg::ReservedMemory msg_reserved;
-    msg_reserved.body().value = linker.reserve_memory(message.body().first, message.body().second);
+    msg_reserved.body().value = linker.reserve_memory(library, message.body().first, message.body().second);
     courier_.send(msg_reserved);
 }
 
 void Librarian::commit_memory(Linker &linker, Library &library, msg::CommitMemory const &message) {
-    linker.commit_memory(message.address, message.memory, message.protection);
+    linker.commit_memory(library, message.address, message.memory, message.protection);
     msg::OK msg_ok;
     courier_.send(msg_ok);
 }
@@ -76,5 +76,5 @@ void Librarian::execute(Linker &linker, Library &library, msg::Execute const &me
     linker.create_thread(library, message.value);
 }
 
-void Librarian::unlink(Linker &linker, Library const &library) {
+void Librarian::unlink(Linker &linker, Library &library) {
 }

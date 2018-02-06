@@ -31,7 +31,7 @@ namespace rrl {
             }
         };
 
-        explicit Library(std::string const &name);
+        Library(HANDLE process, std::string const &name);
         Library(Library const &other) = delete;
         Library(Library &&other) = default;
 
