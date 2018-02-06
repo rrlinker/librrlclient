@@ -22,3 +22,5 @@ void LocalLinker::add_export(Library &library, std::string const &symbol, uint64
     library.set_symbol_address(symbol, address);
 }
 
+void LocalLinker::unlink(Library &library) {
+}

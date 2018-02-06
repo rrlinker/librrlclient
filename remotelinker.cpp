@@ -108,3 +108,6 @@ HMODULE RemoteLinker::find_remote_module_handle(HANDLE hProcess, std::string con
 
     return reinterpret_cast<HMODULE>(me.modBaseAddr);
 }
+
+void RemoteLinker::unlink(Library &library) {
+}

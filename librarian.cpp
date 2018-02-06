@@ -77,4 +77,5 @@ void Librarian::execute(Linker &linker, Library &library, msg::Execute const &me
 }
 
 void Librarian::unlink(Linker &linker, Library &library) {
+    linker.unlink(library);
 }

@@ -11,6 +11,8 @@ namespace rrl {
         virtual uint64_t resolve_symbol(Library &library, std::string const &symbol_library, std::string const &symbol_name) override;
         virtual void add_export(Library &library, std::string const &symbol, uint64_t address) override;
 
+        virtual void unlink(Library &library) override;
+
     protected:
         virtual HMODULE get_module_handle(Library &library, std::string const &module) override;
         virtual void remote_load_module(HANDLE hProcess, std::string const &module);
