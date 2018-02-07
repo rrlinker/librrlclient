@@ -79,7 +79,7 @@ void Library::unlink() {
     }
     // Free memory spaces
     for (auto it = memory_spaces_.begin(); it != memory_spaces_.end(); ) {
-        if (!VirtualFreeEx(process, it->first, it->second, MEM_RELEASE)) {
+        if (!VirtualFreeEx(process, it->first, 0, MEM_RELEASE)) {
             throw win::Win32Exception(GetLastError());
         }
         it = memory_spaces_.erase(it);

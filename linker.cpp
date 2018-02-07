@@ -38,14 +38,14 @@ void Linker::dependency_bind(Library &dependant, std::string const &dependency) 
 }
 
 uint64_t Linker::reserve_memory(Library &library, uint64_t address, size_t size) const {
-    uint64_t memory = reinterpret_cast<uint64_t>(
+    address = reinterpret_cast<uint64_t>(
         VirtualAllocEx(library.process, reinterpret_cast<LPVOID>(address), size, MEM_RESERVE, PAGE_NOACCESS)
         );
-    if (!memory) {
+    if (!address) {
         throw win::Win32Exception(GetLastError());
     }
-    library.add_memory_space((LPVOID)address, size);
-    return memory;
+    library.add_memory_space(reinterpret_cast<LPVOID>(address), size);
+    return address;
 }
 
 void Linker::commit_memory(Library &library, uint64_t address, std::vector<std::byte> const &memory, uint32_t protection) const {
