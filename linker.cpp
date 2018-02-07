@@ -49,13 +49,18 @@ uint64_t Linker::reserve_memory(Library &library, uint64_t address, size_t size)
 }
 
 void Linker::commit_memory(Library &library, uint64_t address, std::vector<std::byte> const &memory, uint32_t protection) const {
-    DWORD old_prot = 0;
+    DWORD nbBytesWritten, old_prot;
     LPVOID ptr = reinterpret_cast<LPVOID>(address);
     LPVOID new_ptr = VirtualAllocEx(library.process, ptr, memory.size(), MEM_COMMIT, PAGE_READWRITE);
     if (new_ptr != ptr) {
         throw win::Win32Exception(GetLastError());
     }
-    memcpy(ptr, memory.data(), memory.size());
+    if (!WriteProcessMemory(library.process, ptr, memory.data(), memory.size(), &nbBytesWritten)) {
+        throw win::Win32Exception(GetLastError());
+    }
+    if (memory.size() != nbBytesWritten) {
+        throw std::logic_error("commit_memory failed to write all buffer bytes");
+    }
     if (!VirtualProtectEx(library.process, ptr, memory.size(), protection, &old_prot)) {
         throw win::Win32Exception(GetLastError());
     }
