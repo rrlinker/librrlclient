@@ -63,12 +63,32 @@ void Library::unlink() {
     if (dependent_libraries_.size() > 0) {
         throw std::logic_error("cannot unlink library with dependent libraries");
     }
-    // Terminate all threads
-    for (auto it = threads_.begin(); it != threads_.end(); ) {
-        if (!TerminateThread(*it, UNLINK_THREAD_EXIT_CODE)) {
-            throw win::Win32Exception(GetLastError());
+    DWORD exitCode;
+    if (!GetExitCodeProcess(process, &exitCode)) {
+        throw win::Win32Exception(GetLastError());
+    }
+    if (exitCode == STILL_ACTIVE) {
+        // Terminate all threads
+        for (auto it = threads_.begin(); it != threads_.end(); ) {
+            if (!TerminateThread(*it, UNLINK_THREAD_EXIT_CODE)) {
+                throw win::Win32Exception(GetLastError());
+            }
+            CloseHandle(*it);
+            it = threads_.erase(it);
         }
-        it = threads_.erase(it);
+        // Free memory spaces
+        for (auto it = memory_spaces_.begin(); it != memory_spaces_.end(); ) {
+            if (!VirtualFreeEx(process, it->first, 0, MEM_RELEASE)) {
+                throw win::Win32Exception(GetLastError());
+            }
+            it = memory_spaces_.erase(it);
+        }
+    } else {
+        for (auto thread : threads_) {
+            CloseHandle(thread);
+        }
+        threads_.clear();
+        memory_spaces_.clear();
     }
     // Free modules
     for (auto it = module_dependencies_.begin(); it != module_dependencies_.end(); ) {
@@ -76,13 +96,6 @@ void Library::unlink() {
             throw win::Win32Exception(GetLastError());
         }
         it = module_dependencies_.erase(it);
-    }
-    // Free memory spaces
-    for (auto it = memory_spaces_.begin(); it != memory_spaces_.end(); ) {
-        if (!VirtualFreeEx(process, it->first, 0, MEM_RELEASE)) {
-            throw win::Win32Exception(GetLastError());
-        }
-        it = memory_spaces_.erase(it);
     }
     // Remove this library from dependent libraries of other libraries
     for (auto it = library_dependencies_.begin(); it != library_dependencies_.end(); ) {
