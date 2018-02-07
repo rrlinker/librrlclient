@@ -79,7 +79,7 @@ void RemoteLinker::remote_load_module(HANDLE hProcess, std::string const &module
     default:
         throw std::logic_error("WaitForSingleObject returned unexpected value");
     }
-    if (!VirtualFreeEx(hProcess, rszModule, module.length() + 1, MEM_RELEASE)) {
+    if (!VirtualFreeEx(hProcess, rszModule, 0, MEM_RELEASE)) {
         throw win::Win32Exception(GetLastError());
     }
 }
@@ -125,25 +125,39 @@ HMODULE RemoteLinker::find_remote_module_handle(HANDLE hProcess, std::string con
     if (!hModuleSnapshot) {
         throw win::Win32Exception(GetLastError());
     }
-
+    
+    bool found = false;
     MODULEENTRY32 me;
     Module32First(hModuleSnapshot, &me);
-    while (module.compare(me.szModule) != 0 && Module32Next(hModuleSnapshot, &me))
-        ;
+    do {
+        if (_stricmp(module.c_str(), me.szModule) == 0) {
+            found = true;
+            break;
+        }
+    } while (Module32Next(hModuleSnapshot, &me));
     CloseHandle(hModuleSnapshot);
-    if (GetLastError() != ERROR_NO_MORE_FILES) {
-        throw win::Win32Exception(GetLastError());
-    } else {
-        throw std::logic_error("failed to find just-loaded remote library");
+    if (!found) {
+        if (GetLastError() != ERROR_NO_MORE_FILES) {
+            throw win::Win32Exception(GetLastError());
+        } else {
+            throw std::logic_error("failed to find just-loaded remote library");
+        }
     }
-
     return reinterpret_cast<HMODULE>(me.modBaseAddr);
 }
 
 void RemoteLinker::unlink(Library &library) {
     Linker::unlink(library);
-    for (auto it = remote_module_handles_.begin(); it != remote_module_handles_.end(); ) {
-        remote_free_module(library.process, it->second);
-        it = remote_module_handles_.erase(it);
+    DWORD exitCode;
+    if (!GetExitCodeProcess(library.process, &exitCode)) {
+        throw win::Win32Exception(GetLastError());
+    }
+    if (exitCode == STILL_ACTIVE) {
+        for (auto it = remote_module_handles_.begin(); it != remote_module_handles_.end(); ) {
+            remote_free_module(library.process, it->second);
+            it = remote_module_handles_.erase(it);
+        }
+    } else {
+        remote_module_handles_.clear();
     }
 }
