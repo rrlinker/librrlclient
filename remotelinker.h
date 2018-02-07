@@ -14,7 +14,7 @@ namespace rrl {
         virtual void unlink(Library &library) override;
 
     protected:
-        virtual HMODULE get_module_handle(Library &library, std::string const &module) override;
+        virtual HMODULE get_remote_module_handle(Library &library, std::string const &module);
         virtual void remote_load_module(HANDLE hProcess, std::string const &module);
         virtual void remote_free_module(HANDLE hProcess, HMODULE hModule);
         virtual HMODULE find_remote_module_handle(HANDLE hProcess, std::string const &module);
@@ -27,4 +27,3 @@ namespace rrl {
     };
 
 }
-

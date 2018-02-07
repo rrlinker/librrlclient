@@ -13,7 +13,7 @@ uint64_t RemoteLinker::resolve_symbol(Library &library, std::string const &symbo
     uint64_t proc;
     // Try Win32 API first
     HMODULE hLocalHandle = get_module_handle(library, symbol_library);
-    HMODULE hRemoteHandle = remote_module_handles_[symbol_library];
+    HMODULE hRemoteHandle = get_remote_module_handle(library, symbol_library);
     if ((proc = reinterpret_cast<uint64_t>(GetProcAddress(hLocalHandle, symbol_name.c_str())))) {
         library.add_module_dependency(symbol_library, hLocalHandle);
         return reinterpret_cast<uint64_t>(hRemoteHandle)
@@ -32,14 +32,13 @@ void RemoteLinker::add_export(Library &library, std::string const &symbol, uint6
     library.set_symbol_address(symbol, address);
 }
 
-HMODULE RemoteLinker::get_module_handle(Library &library, std::string const &module) {
+HMODULE RemoteLinker::get_remote_module_handle(Library &library, std::string const &module) {
     if (remote_module_handles_.find(module) == remote_module_handles_.end()) {
         remote_load_module(library.process, module);
         remote_module_handles_[module] = find_remote_module_handle(library.process, module);
     }
-    return Linker::get_module_handle(library, module);
+    return remote_module_handles_[module];
 }
-
 
 void RemoteLinker::remote_load_module(HANDLE hProcess, std::string const &module) {
     DWORD nbBytesWritten;
