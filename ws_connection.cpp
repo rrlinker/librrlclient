@@ -19,7 +19,7 @@ int WSConnection::cleanup() {
 SOCKADDR_INET WSConnection::make_sockaddr(const Address &address) {
     SOCKADDR_INET saddr = {};
     saddr.si_family = AF_INET6;
-    memcpy(saddr.Ipv6.sin6_addr.s6_addr, address.addr(), sizeof(saddr.Ipv6.sin6_addr.s6_addr));
+    memcpy(saddr.Ipv6.sin6_addr.s6_addr, address.address().data(), sizeof(saddr.Ipv6.sin6_addr.s6_addr));
     saddr.Ipv6.sin6_port = htons(address.port());
     return *reinterpret_cast<SOCKADDR_INET*>(&saddr);
 }
