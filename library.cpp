@@ -52,13 +52,6 @@ uintptr_t Library::get_symbol_address(std::string const &symbol) const {
     return 0;
 }
 
-Library::Symbol const& Library::operator[](std::string const &symbol) const {
-    if (auto it = symbols_.find(symbol); it != symbols_.end())
-        return it->second;
-    else
-        throw std::logic_error("symbol not found");
-}
-
 void Library::unlink() {
     if (dependent_libraries_.size() > 0) {
         throw std::logic_error("cannot unlink library with dependent libraries");

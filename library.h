@@ -13,22 +13,10 @@ namespace rrl {
     class Library {
     public:
         struct Symbol {
-            Symbol() = default;
-            explicit Symbol(uintptr_t address)
+            explicit Symbol(uintptr_t address = 0)
                 : address(address)
             {}
-
             uintptr_t address;
-
-            template<typename T, typename ...Args>
-            T stdcall(Args... args) const {
-                return (reinterpret_cast<T(__stdcall*)(Args...)>(address))(args...);
-            }
-
-            template<typename T, typename ...Args>
-            T ccall(Args... args) const {
-                return (reinterpret_cast<T(__cdecl*)(Args...)>(address))(args...);
-            }
         };
 
         Library(HANDLE process, std::string const &name);
@@ -57,7 +45,7 @@ namespace rrl {
 
         void set_symbol_address(std::string, uintptr_t address);
         uintptr_t get_symbol_address(std::string const &symbol) const;
-        Symbol const& operator[](std::string const &symbol) const;
+        virtual Symbol const& operator[](std::string const &symbol) const = 0;
 
         virtual void unlink();
 
