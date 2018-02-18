@@ -6,7 +6,7 @@ LocalLibrary::LocalLibrary(std::string const &name)
     : Library(GetCurrentProcess(), name)
 {}
 
-LocalLibrary::LocalSymbol const &LocalLibrary::operator[](std::string const & symbol) const {
+LocalLibrary::LocalSymbol LocalLibrary::operator[](std::string const &symbol) const {
     if (auto it = symbols_.find(symbol); it != symbols_.end())
         return it->second;
     else

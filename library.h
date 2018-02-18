@@ -45,7 +45,6 @@ namespace rrl {
 
         void set_symbol_address(std::string, uintptr_t address);
         uintptr_t get_symbol_address(std::string const &symbol) const;
-        virtual Symbol const& operator[](std::string const &symbol) const = 0;
 
         virtual void unlink();
 

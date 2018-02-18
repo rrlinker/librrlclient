@@ -55,6 +55,6 @@ namespace rrl {
             }
         };
 
-        virtual RemoteSymbol const& operator[](std::string const &symbol) const override;
+        RemoteSymbol operator[](std::string const &symbol) const;
     };
 }

@@ -30,7 +30,7 @@ namespace rrl {
             }
         };
 
-        virtual LocalSymbol const& operator[](std::string const &symbol) const override;
+        virtual LocalSymbol operator[](std::string const &symbol) const;
     };
 
 }
