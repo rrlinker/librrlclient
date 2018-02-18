@@ -22,9 +22,11 @@ namespace rrl {
 
             template<typename T>
             struct RemoteValue {
-                explicit RemoteValue(uintptr_t address = 0)
-                    : address(address)
+                explicit RemoteValue(HANDLE process, uintptr_t address)
+                    : process(process)
+                    , address(address)
                 {}
+                HANDLE process;
                 uintptr_t address;
                 operator T() const {
                     DWORD nbRead;
@@ -45,13 +47,13 @@ namespace rrl {
                     if (nbWrite != sizeof(value)) {
                         throw std::runtime_error("not all bytes of RemoteValue have been written!");
                     }
-                    return std::forward(value);
+                    return std::forward<T>(value);
                 }
             };
 
             template<typename T>
             RemoteValue<T> value() const {
-                return RemoteValue(address);
+                return RemoteValue<T>(process, address);
             }
         };
 
