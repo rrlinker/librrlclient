@@ -9,18 +9,18 @@ using namespace rrl;
 DWORD const RemoteLinker::REMOTE_LOAD_LIBRARY_TIMEOUT = 16384;
 DWORD const RemoteLinker::REMOTE_FREE_LIBRARY_TIMEOUT = 16384;
 
-uint64_t RemoteLinker::resolve_symbol(Library &library, std::string const &symbol_library, std::string const &symbol_name) {
-    uint64_t proc;
+uintptr_t RemoteLinker::resolve_symbol(Library &library, std::string const &symbol_library, std::string const &symbol_name) {
+    uintptr_t proc;
     // Try Win32 API first
     HMODULE hLocalHandle = get_module_handle(library, symbol_library);
     HMODULE hRemoteHandle = get_remote_module_handle(library, symbol_library);
-    if ((proc = reinterpret_cast<uint64_t>(GetProcAddress(hLocalHandle, symbol_name.c_str())))) {
+    if ((proc = reinterpret_cast<uintptr_t>(GetProcAddress(hLocalHandle, symbol_name.c_str()))) != NULL) {
         library.add_module_dependency(symbol_library, hLocalHandle);
-        return reinterpret_cast<uint64_t>(hRemoteHandle)
-            + (proc - reinterpret_cast<uint64_t>(hLocalHandle));
+        return reinterpret_cast<uintptr_t>(hRemoteHandle)
+            + (proc - reinterpret_cast<uintptr_t>(hLocalHandle));
     }
     // Try local libraries
-    if ((proc = resolve_internal_symbol(library, symbol_library, symbol_name))) {
+    if ((proc = resolve_internal_symbol(library, symbol_library, symbol_name)) != 0) {
         dependency_bind(library, symbol_library);
         return proc;
     }
@@ -28,7 +28,7 @@ uint64_t RemoteLinker::resolve_symbol(Library &library, std::string const &symbo
     return resolve_unresolved_symbol(library, symbol_library, symbol_name);
 }
 
-void RemoteLinker::add_export(Library &library, std::string const &symbol, uint64_t address) {
+void RemoteLinker::add_export(Library &library, std::string const &symbol, uintptr_t address) {
     library.set_symbol_address(symbol, address);
 }
 
@@ -41,7 +41,7 @@ HMODULE RemoteLinker::get_remote_module_handle(Library &library, std::string con
 }
 
 void RemoteLinker::remote_load_module(HANDLE hProcess, std::string const &module) {
-    DWORD nbBytesWritten;
+    SIZE_T nbBytesWritten;
     LPVOID rszModule = VirtualAllocEx(hProcess, NULL, module.length() + 1, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
     if (!rszModule) {
         throw win::Win32Exception(GetLastError());

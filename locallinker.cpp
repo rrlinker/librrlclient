@@ -3,16 +3,16 @@
 
 using namespace rrl;
 
-uint64_t LocalLinker::resolve_symbol(Library &library, std::string const &symbol_library, std::string const &symbol_name) {
-    uint64_t proc;
+uintptr_t LocalLinker::resolve_symbol(Library &library, std::string const &symbol_library, std::string const &symbol_name) {
+    uintptr_t proc;
     HMODULE hModule = get_module_handle(library, symbol_library);
     // Try Win32 API first
-    if ((proc = reinterpret_cast<uint64_t>(GetProcAddress(hModule, symbol_name.c_str())))) {
+    if ((proc = reinterpret_cast<uintptr_t>(GetProcAddress(hModule, symbol_name.c_str()))) != NULL) {
         library.add_module_dependency(symbol_library, hModule);
         return proc;
     }
     // Try local libraries
-    if ((proc = resolve_internal_symbol(library, symbol_library, symbol_name))) {
+    if ((proc = resolve_internal_symbol(library, symbol_library, symbol_name)) != 0) {
         dependency_bind(library, symbol_library);
         return proc;
     }
@@ -20,6 +20,6 @@ uint64_t LocalLinker::resolve_symbol(Library &library, std::string const &symbol
     return resolve_unresolved_symbol(library, symbol_library, symbol_name);
 }
 
-void LocalLinker::add_export(Library &library, std::string const &symbol, uint64_t address) {
+void LocalLinker::add_export(Library &library, std::string const &symbol, uintptr_t address) {
     library.set_symbol_address(symbol, address);
 }

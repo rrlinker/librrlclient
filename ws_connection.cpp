@@ -63,7 +63,7 @@ void WSConnection::disconnect() {
 void WSConnection::send(const std::byte *data, uint64_t length) {
     int res;
     do {
-        res = ::send(socket_, reinterpret_cast<const char*>(data), length, 0);
+        res = ::send(socket_, reinterpret_cast<const char*>(data), static_cast<int>(length), 0);
         if (res == SOCKET_ERROR)
             throw Win32Exception(WSAGetLastError());
         data += res;
@@ -72,10 +72,13 @@ void WSConnection::send(const std::byte *data, uint64_t length) {
 }
 
 void WSConnection::recv(std::byte *data, uint64_t length) {
-    if (length > 0) {
-        int res = ::recv(socket_, reinterpret_cast<char*>(data), length, MSG_WAITALL);
-        if (res == SOCKET_ERROR || res == 0)
+    while (length > 0) {
+        int res = ::recv(socket_, reinterpret_cast<char*>(data), static_cast<int>(length), 0);
+        if (res == SOCKET_ERROR || res == 0) {
             throw Win32Exception(WSAGetLastError());
         }
+        data += res;
+        length -= res;
+    }
 }
 

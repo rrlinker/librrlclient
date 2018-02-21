@@ -1,4 +1,5 @@
 #include "librarian.h"
+#include <bound_check.h>
 
 using namespace rrl;
 
@@ -58,23 +59,28 @@ void Librarian::resolve_external_symbol(Linker &linker, Library &library, msg::R
 }
 
 void Librarian::accept_exported_symbol(Linker &linker, Library &library, msg::ExportSymbol const &message) {
-    linker.add_export(library, message.body().symbol, message.body().address);
+    verify_pointer_bounds(message.body().address);
+    linker.add_export(library, message.body().symbol, static_cast<uintptr_t>(message.body().address));
 }
 
 void Librarian::reserve_memory_space(Linker &linker, Library &library, msg::ReserveMemorySpace const &message) {
     msg::ReservedMemory msg_reserved;
-    msg_reserved.body().value = linker.reserve_memory(library, message.body().first, message.body().second);
+    verify_pointer_bounds(message.body().first);
+    verify_size_bounds(message.body().second);
+    msg_reserved.body().value = linker.reserve_memory(library, static_cast<uintptr_t>(message.body().first), static_cast<size_t>(message.body().second));
     courier_.send(msg_reserved);
 }
 
 void Librarian::commit_memory(Linker &linker, Library &library, msg::CommitMemory const &message) {
-    linker.commit_memory(library, message.address, message.memory, message.protection);
+    verify_pointer_bounds(message.address);
+    linker.commit_memory(library, static_cast<uintptr_t>(message.address), message.memory, message.protection);
     msg::OK msg_ok;
     courier_.send(msg_ok);
 }
 
 void Librarian::execute(Linker &linker, Library &library, msg::Execute const &message) {
-    linker.create_thread(library, message.value);
+    verify_pointer_bounds(message.value);
+    linker.create_thread(library, static_cast<uintptr_t>(message.value));
 }
 
 void Librarian::unlink(Linker &linker, Library &library) {

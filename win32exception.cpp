@@ -15,7 +15,7 @@ std::string FormatErrorMessage(DWORD error) {
         error,
         0,
         buf.data(),
-        buf.size() - 1,
+        static_cast<DWORD>(buf.size() - 1),
         0
     );
     return std::string(buf.data());

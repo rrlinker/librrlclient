@@ -17,7 +17,7 @@ void Linker::remove_unresolved_symbol_resolver() {
     symbol_resolver_ = nullptr;
 }
 
-uint64_t Linker::resolve_internal_symbol(Library &library, std::string const &symbol_library, std::string const &symbol_name) const {
+uintptr_t Linker::resolve_internal_symbol(Library&, std::string const &symbol_library, std::string const &symbol_name) const {
     if (auto it = libraries_.find(symbol_library); it != libraries_.end()) {
         auto const &export_library = it->second;
         return export_library.get_symbol_address(symbol_name);
@@ -25,7 +25,7 @@ uint64_t Linker::resolve_internal_symbol(Library &library, std::string const &sy
     return 0;
 }
 
-uint64_t Linker::resolve_unresolved_symbol(Library &library, std::string const &symbol_library, std::string const &symbol_name) const {
+uintptr_t Linker::resolve_unresolved_symbol(Library&, std::string const &symbol_library, std::string const &symbol_name) const {
     if (symbol_resolver_ == nullptr)
         return 0;
     return symbol_resolver_(symbol_library, symbol_name);
@@ -37,8 +37,8 @@ void Linker::dependency_bind(Library &dependant, std::string const &dependency) 
     dependant.add_library_dependency(library_dependency);
 }
 
-uint64_t Linker::reserve_memory(Library &library, uint64_t address, size_t size) const {
-    address = reinterpret_cast<uint64_t>(
+uintptr_t Linker::reserve_memory(Library &library, uintptr_t address, size_t size) const {
+    address = reinterpret_cast<uintptr_t>(
         VirtualAllocEx(library.process, reinterpret_cast<LPVOID>(address), size, MEM_RESERVE, PAGE_NOACCESS)
         );
     if (!address) {
@@ -48,8 +48,9 @@ uint64_t Linker::reserve_memory(Library &library, uint64_t address, size_t size)
     return address;
 }
 
-void Linker::commit_memory(Library &library, uint64_t address, std::vector<std::byte> const &memory, uint32_t protection) const {
-    DWORD nbBytesWritten, old_prot;
+void Linker::commit_memory(Library &library, uintptr_t address, std::vector<std::byte> const &memory, uint32_t protection) const {
+    SIZE_T nbBytesWritten;
+    DWORD old_prot;
     LPVOID ptr = reinterpret_cast<LPVOID>(address);
     LPVOID new_ptr = VirtualAllocEx(library.process, ptr, memory.size(), MEM_COMMIT, PAGE_READWRITE);
     if (new_ptr != ptr) {
@@ -66,7 +67,7 @@ void Linker::commit_memory(Library &library, uint64_t address, std::vector<std::
     }
 }
 
-void Linker::create_thread(Library &library, uint64_t address) const {
+void Linker::create_thread(Library &library, uintptr_t address) const {
     LPVOID lpParam = &library;
     if (library.process != GetCurrentProcess())
         lpParam = NULL;
@@ -86,7 +87,7 @@ void Linker::create_thread(Library &library, uint64_t address) const {
     library.add_thread(hThread);
 }
 
-HMODULE Linker::get_module_handle(Library &library, std::string const &module) {
+HMODULE Linker::get_module_handle(Library&, std::string const &module) {
     if (auto it = module_handles_.find(module); it != module_handles_.end()) {
         return it->second;
     }
