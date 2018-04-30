@@ -7,8 +7,8 @@ namespace rrl {
     class LocalLibrary : public Library {
     public:
         LocalLibrary(std::string const &name);
-        LocalLibrary(LocalLibrary const &other) = delete;
-        LocalLibrary(LocalLibrary &&other) = default;
+        LocalLibrary(LocalLibrary const&) = delete;
+        LocalLibrary(LocalLibrary&&) = default;
 
         using Library::operator=;
 

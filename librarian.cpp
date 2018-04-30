@@ -1,5 +1,6 @@
 #include "librarian.h"
 #include <bound_check.h>
+#include <stdexcept>
 
 using namespace rrl;
 
@@ -9,14 +10,16 @@ Librarian::Librarian(Courier &courier)
 }
 
 void Librarian::link(Linker &linker, Library &library) {
+    if (linker.kind() != library.kind()) {
+        throw std::logic_error("linker and library kinds are different!");
+    }
     request_library(library);
     perform_linkage(linker, library);
     linker.register_library(library);
 }
 
 void Librarian::request_library(Library const &library) {
-    msg::LinkLibrary msg_link_lib;
-    msg_link_lib.body() = library.name;
+    msg::LinkLibrary msg_link_lib(library.name);
     courier_.send(msg_link_lib);
 
     auto response = courier_.receive();
@@ -52,38 +55,40 @@ void Librarian::perform_linkage(Linker &linker, Library &library) {
     }
 }
 
-void Librarian::resolve_external_symbol(Linker &linker, Library &library, msg::ResolveExternalSymbol const &message) {
+void Librarian::resolve_external_symbol(Linker &linker, Library &library, msg::ResolveExternalSymbol const &data) {
     msg::ResolvedSymbol msg_resolved;
-    msg_resolved.body().value = linker.resolve_symbol(library, message.body().library, message.body().symbol);
+    msg_resolved.value = linker.resolve_symbol(library, data.library, data.symbol);
     courier_.send(msg_resolved);
 }
 
-void Librarian::accept_exported_symbol(Linker &linker, Library &library, msg::ExportSymbol const &message) {
-    verify_pointer_bounds(message.body().address);
-    linker.add_export(library, message.body().symbol, static_cast<uintptr_t>(message.body().address));
+void Librarian::accept_exported_symbol(Linker &linker, Library &library, msg::ExportSymbol const &data) {
+    verify_pointer_bounds(data.address);
+    linker.add_export(library, data.symbol, static_cast<uintptr_t>(data.address));
 }
 
-void Librarian::reserve_memory_space(Linker &linker, Library &library, msg::ReserveMemorySpace const &message) {
+void Librarian::reserve_memory_space(Linker &linker, Library &library, msg::ReserveMemorySpace const &data) {
     msg::ReservedMemory msg_reserved;
-    verify_pointer_bounds(message.body().first);
-    verify_size_bounds(message.body().second);
-    msg_reserved.body().value = linker.reserve_memory(library, static_cast<uintptr_t>(message.body().first), static_cast<size_t>(message.body().second));
+    verify_size_bounds(data.value);
+    msg_reserved.value = linker.reserve_memory(library, static_cast<size_t>(data.value));
     courier_.send(msg_reserved);
 }
 
-void Librarian::commit_memory(Linker &linker, Library &library, msg::CommitMemory const &message) {
-    verify_pointer_bounds(message.address);
-    linker.commit_memory(library, static_cast<uintptr_t>(message.address), message.memory, message.protection);
-    msg::OK msg_ok;
-    courier_.send(msg_ok);
+void Librarian::commit_memory(Linker &linker, Library &library, msg::CommitMemory const &data) {
+    verify_pointer_bounds(data.address);
+    linker.commit_memory(library, static_cast<uintptr_t>(data.address), data.memory, data.protection);
+    courier_.send<msg::OK>();
 }
 
-void Librarian::execute(Linker &linker, Library &library, msg::Execute const &message) {
-    verify_pointer_bounds(message.value);
-    linker.create_thread(library, static_cast<uintptr_t>(message.value));
+void Librarian::execute(Linker &linker, Library &library, msg::Execute const &data) {
+    verify_pointer_bounds(data.value);
+    linker.create_thread(library, static_cast<uintptr_t>(data.value));
+    courier_.send<msg::OK>();
 }
 
 void Librarian::unlink(Linker &linker, Library &library) {
+    if (linker.kind() != library.kind()) {
+        throw std::logic_error("linker and library kinds are different!");
+    }
     linker.unlink(library);
     linker.unregister_library(library);
 }

@@ -5,8 +5,9 @@ using namespace rrl;
 
 DWORD const Library::UNLINK_THREAD_EXIT_CODE = 0x0FF116C;
 
-Library::Library(HANDLE process, std::string const &name)
-    : process(process)
+Library::Library(LinkageKind kind, HANDLE process, std::string const &name)
+    : linkage_kind_(kind)
+    , process(process)
     , name(name)
 {}
 

@@ -3,6 +3,10 @@
 
 using namespace rrl;
 
+LocalLinker::LocalLinker(symbol_resolver resolver)
+    : Linker(LinkageKind::Local, resolver)
+{}
+
 uintptr_t LocalLinker::resolve_symbol(Library &library, std::string const &symbol_library, std::string const &symbol_name) {
     uintptr_t proc;
     HMODULE hModule = get_module_handle(library, symbol_library);
@@ -12,7 +16,7 @@ uintptr_t LocalLinker::resolve_symbol(Library &library, std::string const &symbo
         return proc;
     }
     // Try local libraries
-    if ((proc = resolve_internal_symbol(library, symbol_library, symbol_name)) != 0) {
+    if ((proc = resolve_internal_symbol(symbol_library, symbol_name)) != 0) {
         dependency_bind(library, symbol_library);
         return proc;
     }

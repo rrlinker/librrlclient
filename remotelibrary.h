@@ -7,7 +7,10 @@ namespace rrl {
 
     class RemoteLibrary : public Library {
     public:
-        using Library::Library;
+        RemoteLibrary(HANDLE process, std::string const &name);
+        RemoteLibrary(RemoteLibrary const&) = delete;
+        RemoteLibrary(RemoteLibrary&&) = default;
+
         using Library::operator=;
 
         struct RemoteSymbol : public Symbol {
@@ -22,12 +25,11 @@ namespace rrl {
 
             template<typename T>
             struct RemoteValue {
-                explicit RemoteValue(HANDLE process, uintptr_t address)
+            public:
+                RemoteValue(HANDLE process, uintptr_t address)
                     : process(process)
                     , address(address)
                 {}
-                HANDLE process;
-                uintptr_t address;
                 operator T() const {
                     DWORD nbRead;
                     T value;
@@ -39,7 +41,7 @@ namespace rrl {
                     }
                     return std::move(value);
                 }
-                T&& operator=(T &&value) const {
+                T&& operator=(T &&value) {
                     DWORD nbWrite;
                     if (!WriteProcessMemory(process, reinterpret_cast<LPCVOID>(address), &value, sizeof(value), &nbWrite)) {
                         throw win::Win32Exception(GetLastError());
@@ -49,6 +51,9 @@ namespace rrl {
                     }
                     return std::forward<T>(value);
                 }
+            private:
+                HANDLE process;
+                uintptr_t address;
             };
 
             template<typename T>

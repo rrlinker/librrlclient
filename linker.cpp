@@ -3,8 +3,9 @@
 
 using namespace rrl;
 
-Linker::Linker(symbol_resolver resolver)
-    : symbol_resolver_(resolver)
+Linker::Linker(LinkageKind kind, symbol_resolver resolver)
+    : linkage_kind_(kind)
+    , symbol_resolver_(resolver)
 {}
 
 Linker::~Linker() {}
@@ -17,7 +18,7 @@ void Linker::remove_unresolved_symbol_resolver() {
     symbol_resolver_ = nullptr;
 }
 
-uintptr_t Linker::resolve_internal_symbol(Library&, std::string const &symbol_library, std::string const &symbol_name) const {
+uintptr_t Linker::resolve_internal_symbol(std::string const &symbol_library, std::string const &symbol_name) const {
     if (auto it = libraries_.find(symbol_library); it != libraries_.end()) {
         auto const &export_library = it->second;
         return export_library.get_symbol_address(symbol_name);
@@ -37,9 +38,9 @@ void Linker::dependency_bind(Library &dependant, std::string const &dependency) 
     dependant.add_library_dependency(library_dependency);
 }
 
-uintptr_t Linker::reserve_memory(Library &library, uintptr_t address, size_t size) const {
-    address = reinterpret_cast<uintptr_t>(
-        VirtualAllocEx(library.process, reinterpret_cast<LPVOID>(address), size, MEM_RESERVE, PAGE_NOACCESS)
+uintptr_t Linker::reserve_memory(Library &library, size_t size) const {
+    uintptr_t address = reinterpret_cast<uintptr_t>(
+        VirtualAllocEx(library.process, NULL, size, MEM_RESERVE, PAGE_NOACCESS)
         );
     if (!address) {
         throw win::Win32Exception(GetLastError());

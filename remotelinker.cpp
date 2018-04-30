@@ -9,6 +9,10 @@ using namespace rrl;
 DWORD const RemoteLinker::REMOTE_LOAD_LIBRARY_TIMEOUT = 16384;
 DWORD const RemoteLinker::REMOTE_FREE_LIBRARY_TIMEOUT = 16384;
 
+RemoteLinker::RemoteLinker(symbol_resolver resolver)
+    : Linker(LinkageKind::Remote, resolver)
+{}
+
 uintptr_t RemoteLinker::resolve_symbol(Library &library, std::string const &symbol_library, std::string const &symbol_name) {
     uintptr_t proc;
     // Try Win32 API first
@@ -20,7 +24,7 @@ uintptr_t RemoteLinker::resolve_symbol(Library &library, std::string const &symb
             + (proc - reinterpret_cast<uintptr_t>(hLocalHandle));
     }
     // Try local libraries
-    if ((proc = resolve_internal_symbol(library, symbol_library, symbol_name)) != 0) {
+    if ((proc = resolve_internal_symbol(symbol_library, symbol_name)) != 0) {
         dependency_bind(library, symbol_library);
         return proc;
     }

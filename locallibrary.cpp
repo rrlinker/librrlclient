@@ -3,7 +3,7 @@
 using namespace rrl;
 
 LocalLibrary::LocalLibrary(std::string const &name)
-    : Library(GetCurrentProcess(), name)
+    : Library(LinkageKind::Local, GetCurrentProcess(), name)
 {}
 
 LocalLibrary::LocalSymbol LocalLibrary::operator[](std::string const &symbol) const {

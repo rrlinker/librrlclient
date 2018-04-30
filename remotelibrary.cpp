@@ -2,6 +2,10 @@
 
 using namespace rrl;
 
+RemoteLibrary::RemoteLibrary(HANDLE process, std::string const &name)
+    : Library(LinkageKind::Remote, process, name)
+{}
+
 RemoteLibrary::RemoteSymbol RemoteLibrary::operator[](std::string const &symbol) const {
     if (auto it = symbols_.find(symbol); it != symbols_.end())
         return RemoteSymbol(it->second, process);
