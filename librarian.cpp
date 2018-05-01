@@ -21,10 +21,7 @@ void Librarian::link(Linker &linker, Library &library) {
 void Librarian::request_library(Library const &library) {
     msg::LinkLibrary msg_link_lib(library.name);
     courier_.send(msg_link_lib);
-
-    auto response = courier_.receive();
-    if (response.type() != MessageType::OK)
-        throw UnexpectedResponse(std::move(response), MessageType::OK);
+    courier_.receive<msg::OK>();
 }
 
 void Librarian::perform_linkage(Linker &linker, Library &library) {
