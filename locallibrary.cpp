@@ -1,5 +1,7 @@
 #include "locallibrary.h"
 
+#include <stdexcept>
+
 using namespace rrl;
 
 LocalLibrary::LocalLibrary(std::string const &name)
@@ -10,5 +12,5 @@ LocalLibrary::LocalSymbol LocalLibrary::operator[](std::string const &symbol) co
     if (auto it = symbols_.find(symbol); it != symbols_.end())
         return it->second;
     else
-        throw std::logic_error("symbol not found");
+        throw std::out_of_range("symbol `" + symbol + "` not found");
 }
