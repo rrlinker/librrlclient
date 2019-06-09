@@ -25,12 +25,24 @@ SOCKADDR_INET WSConnection::make_sockaddr(const Address &address) {
 }
 
 
-WSConnection::WSConnection()
+WSConnection::WSConnection(bool _auto)
     : Connection()
-{}
+    , auto_(_auto)
+{
+    if (auto_) {
+        if (startup()) {
+            throw Win32Exception(WSAGetLastError());
+        }
+    }
+}
 
 WSConnection::~WSConnection() {
     disconnect();
+    if (auto_) {
+        if (cleanup()) {
+            throw Win32Exception(WSAGetLastError());
+        }
+    }
 }
 
 void WSConnection::connect(const Address &address) {

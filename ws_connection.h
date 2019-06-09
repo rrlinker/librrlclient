@@ -14,7 +14,7 @@ namespace rrl::win {
 
         static SOCKADDR_INET make_sockaddr(Address const &address);
 
-        WSConnection();
+        WSConnection(bool _auto = false);
         virtual ~WSConnection();
 
         virtual void connect(Address const &address) override;
@@ -25,6 +25,7 @@ namespace rrl::win {
         const WSADATA& WSAData() const { return wsaData_; }
 
     private:
+        bool auto_;
         static WSADATA wsaData_;
     };
 
