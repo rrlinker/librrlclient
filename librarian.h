@@ -1,6 +1,6 @@
 #pragma once
 
-#include <courier.h>
+#include <librlcom/courier.h>
 #include "linker.h"
 #include "library.h"
 
