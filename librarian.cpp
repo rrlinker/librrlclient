@@ -21,7 +21,7 @@ void Librarian::link(Linker &linker, Library &library) {
 void Librarian::request_library(Library const &library) {
     msg::LinkLibrary msg_link_lib(library.name);
     courier_.send(msg_link_lib);
-    courier_.receive<msg::OK>();
+    courier_.receive().assert<msg::OK>();
 }
 
 void Librarian::perform_linkage(Linker &linker, Library &library) {
@@ -73,13 +73,13 @@ void Librarian::reserve_memory_space(Linker &linker, Library &library, msg::Rese
 void Librarian::commit_memory(Linker &linker, Library &library, msg::CommitMemory const &data) {
     verify_pointer_bounds(data.address);
     linker.commit_memory(library, static_cast<uintptr_t>(data.address), data.memory, data.protection);
-    courier_.send<msg::OK>();
+    courier_.send(msg::OK{});
 }
 
 void Librarian::execute(Linker &linker, Library &library, msg::Execute const &data) {
     verify_pointer_bounds(data.value);
     linker.create_thread(library, static_cast<uintptr_t>(data.value));
-    courier_.send<msg::OK>();
+    courier_.send(msg::OK{});
 }
 
 void Librarian::unlink(Linker &linker, Library &library) {
