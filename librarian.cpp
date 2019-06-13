@@ -1,5 +1,5 @@
-#include "librarian.h"
-#include <librlcom/bound_check.h>
+#include "librarian.hpp"
+#include <librlcom/bound_check.hpp>
 #include <stdexcept>
 
 using namespace rrl;

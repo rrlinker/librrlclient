@@ -1,4 +1,4 @@
-#include "win32exception.h"
+#include "win32exception.hpp"
 
 #include <Windows.h>
 

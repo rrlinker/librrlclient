@@ -1,5 +1,5 @@
-#include "locallinker.h"
-#include "win32exception.h"
+#include "locallinker.hpp"
+#include "win32exception.hpp"
 
 using namespace rrl;
 

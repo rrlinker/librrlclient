@@ -1,5 +1,5 @@
-#include "remotelinker.h"
-#include "win32exception.h"
+#include "remotelinker.hpp"
+#include "win32exception.hpp"
 
 #include <Windows.h>
 #include <TlHelp32.h>

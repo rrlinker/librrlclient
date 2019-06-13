@@ -1,4 +1,4 @@
-#include <librlcom/connection.h>
+#include <librlcom/connection.hpp>
 
 #include <WinSock2.h>
 #include <Ws2ipdef.h>
@@ -15,7 +15,7 @@ namespace rrl::win {
         static SOCKADDR_INET make_sockaddr(Address const &address);
 
         WSConnection(bool _auto = false);
-        virtual ~WSConnection();
+        virtual ~WSConnection() noexcept(false);
 
         virtual void connect(Address const &address) override;
         virtual void disconnect() override;

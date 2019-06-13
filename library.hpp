@@ -8,7 +8,7 @@
 
 #include <Windows.h>
 
-#include "linkage.h"
+#include "linkage.hpp"
 
 namespace rrl {
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "library.h"
-#include "win32exception.h"
+#include "library.hpp"
+#include "win32exception.hpp"
 
 namespace rrl {
 

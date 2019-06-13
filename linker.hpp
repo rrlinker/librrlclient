@@ -8,8 +8,8 @@
 
 #include <Windows.h>
 
-#include "library.h"
-#include "linkage.h"
+#include "library.hpp"
+#include "linkage.hpp"
 
 namespace rrl {
 

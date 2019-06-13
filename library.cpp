@@ -1,5 +1,5 @@
-#include "library.h"
-#include "win32exception.h"
+#include "library.hpp"
+#include "win32exception.hpp"
 
 using namespace rrl;
 

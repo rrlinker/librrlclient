@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "ws_connection.h"
-#include "win32exception.h"
+#include "ws_connection.hpp"
+#include "win32exception.hpp"
 
 using namespace rrl;
 using namespace rrl::win;
@@ -36,7 +36,7 @@ WSConnection::WSConnection(bool _auto)
     }
 }
 
-WSConnection::~WSConnection() {
+WSConnection::~WSConnection() noexcept(false) {
     disconnect();
     if (auto_) {
         if (cleanup()) {
