@@ -37,12 +37,12 @@ namespace rrl {
         Library& operator=(Library const&) = delete;
         Library& operator=(Library&&) = default;
 
-        std::unordered_map<LPVOID, SIZE_T> const& get_memory_spaces() { return memory_spaces_; }
-        std::unordered_map<std::string, Symbol> const& get_symbols() { return symbols_; }
-        std::unordered_map<std::string, HMODULE> const& get_module_dependencies() { return module_dependencies_; }
-        std::unordered_map<std::string, Library&> const& get_library_dependencies() { return library_dependencies_; }
-        std::unordered_map<std::string, Library&> const& get_dependent_libraries() { return dependent_libraries_; }
-        std::unordered_set<HANDLE> const& get_threads() { return threads_; }
+        std::unordered_map<LPVOID, SIZE_T> const& get_memory_spaces() const { return memory_spaces_; }
+        std::unordered_map<std::string, Symbol> const& get_symbols() const { return symbols_; }
+        std::unordered_map<std::string, HMODULE> const& get_module_dependencies() const { return module_dependencies_; }
+        std::unordered_map<std::string, Library&> const& get_library_dependencies() const { return library_dependencies_; }
+        std::unordered_map<std::string, Library&> const& get_dependent_libraries() const { return dependent_libraries_; }
+        std::unordered_set<HANDLE> const& get_threads() const { return threads_; }
 
         inline LinkageKind kind() const { return linkage_kind_; }
 
