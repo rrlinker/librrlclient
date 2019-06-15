@@ -3,6 +3,8 @@
 #include "library.hpp"
 #include "win32exception.hpp"
 
+#include <vector>
+
 namespace rrl {
 
     class RemoteLibrary : public Library {
@@ -33,7 +35,7 @@ namespace rrl {
                 operator T() const {
                     DWORD nbRead;
                     T value;
-                    if (!ReadProcessMemory(process, reinterpret_cast<LPCVOID>(address), &value, sizeof(value), &nbRead)) {
+                    if (!ReadProcessMemory(process, reinterpret_cast<LPCVOID>(address), reinterpret_cast<LPVOID>(&value), sizeof(value), &nbRead)) {
                         throw win::Win32Exception(GetLastError());
                     }
                     if (nbRead != sizeof(value)) {
@@ -43,7 +45,7 @@ namespace rrl {
                 }
                 T&& operator=(T &&value) {
                     DWORD nbWrite;
-                    if (!WriteProcessMemory(process, reinterpret_cast<LPCVOID>(address), &value, sizeof(value), &nbWrite)) {
+                    if (!WriteProcessMemory(process, reinterpret_cast<LPVOID>(address), reinterpret_cast<LPCVOID>(&value), sizeof(value), &nbWrite)) {
                         throw win::Win32Exception(GetLastError());
                     }
                     if (nbWrite != sizeof(value)) {
@@ -57,8 +59,45 @@ namespace rrl {
             };
 
             template<typename T>
+            struct RemoteArray {
+            public:
+                RemoteArray(HANDLE process, uintptr_t address)
+                    : process(process)
+                    , address(address)
+                {}
+                std::vector<T> read(size_t size) const {
+                    DWORD nbRead;
+                    std::vector<T> array(size);
+                    if (!ReadProcessMemory(process, reinterpret_cast<LPCVOID>(address), reinterpret_cast<LPVOID>(array.data()), array.size() * sizeof(T), &nbRead)) {
+                        throw win::Win32Exception(GetLastError());
+                    }
+                    if (nbRead != array.size() * sizeof(T)) {
+                        throw std::runtime_error("not all bytes of RemoteArray have been read!");
+                    }
+                    return array;
+                }
+                void write(T const *data, size_t size) {
+                    DWORD nbWrite;
+                    if (!WriteProcessMemory(process, reinterpret_cast<LPVOID>(address), reinterpret_cast<LPCVOID>(data), size * sizeof(T), &nbWrite)) {
+                        throw win::Win32Exception(GetLastError());
+                    }
+                    if (nbWrite != size * sizeof(T)) {
+                        throw std::runtime_error("not all bytes of RemoteArray have been written!");
+                    }
+                }
+            private:
+                HANDLE process;
+                uintptr_t address;
+            };
+
+            template<typename T>
             RemoteValue<T> value() const {
                 return RemoteValue<T>(process, address);
+            }
+
+            template<typename T>
+            RemoteArray<T> array() const {
+                return RemoteArray<T>(process, address);
             }
         };
 
