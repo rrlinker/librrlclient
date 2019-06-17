@@ -48,6 +48,8 @@ namespace rrl {
 
         uintptr_t get_symbol_address(std::string const &symbol) const;
 
+        void detach();
+
         std::string const name;
         HANDLE const process;
 
@@ -76,6 +78,7 @@ namespace rrl {
 
     private:
         LinkageKind linkage_kind_;
+        bool detached_;
     };
 
 }

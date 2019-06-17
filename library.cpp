@@ -1,5 +1,6 @@
 #include "library.hpp"
-#include "win32exception.hpp"
+
+#include <system_error>
 
 using namespace rrl;
 
@@ -9,10 +10,12 @@ Library::Library(LinkageKind kind, HANDLE process, std::string const &name)
     : linkage_kind_(kind)
     , process(process)
     , name(name)
+    , detached_(false)
 {}
 
 Library::~Library() {
-    unlink();
+    if (!detached_)
+        unlink();
 }
 
 void Library::add_module_dependency(std::string const &module, HMODULE handle) {
@@ -59,13 +62,13 @@ void Library::unlink() {
     }
     DWORD exitCode;
     if (!GetExitCodeProcess(process, &exitCode)) {
-        throw win::Win32Exception(GetLastError());
+        throw std::system_error(GetLastError(), std::generic_category());
     }
     if (exitCode == STILL_ACTIVE) {
         // Terminate all threads
         for (auto it = threads_.begin(); it != threads_.end(); ) {
             if (!TerminateThread(*it, UNLINK_THREAD_EXIT_CODE)) {
-                throw win::Win32Exception(GetLastError());
+                throw std::system_error(GetLastError(), std::generic_category());
             }
             CloseHandle(*it);
             it = threads_.erase(it);
@@ -73,7 +76,7 @@ void Library::unlink() {
         // Free memory spaces
         for (auto it = memory_spaces_.begin(); it != memory_spaces_.end(); ) {
             if (!VirtualFreeEx(process, it->first, 0, MEM_RELEASE)) {
-                throw win::Win32Exception(GetLastError());
+                throw std::system_error(GetLastError(), std::generic_category());
             }
             it = memory_spaces_.erase(it);
         }
@@ -87,7 +90,7 @@ void Library::unlink() {
     // Free modules
     for (auto it = module_dependencies_.begin(); it != module_dependencies_.end(); ) {
         if (!FreeLibrary(it->second)) {
-            throw win::Win32Exception(GetLastError());
+            throw std::system_error(GetLastError(), std::generic_category());
         }
         it = module_dependencies_.erase(it);
     }
@@ -96,4 +99,8 @@ void Library::unlink() {
         it->second.remove_dependent_library(*this);
         it = library_dependencies_.erase(it);
     }
+}
+
+void Library::detach() {
+    detached_ = true;
 }

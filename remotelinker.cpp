@@ -1,5 +1,6 @@
 #include "remotelinker.hpp"
-#include "win32exception.hpp"
+
+#include <system_error>
 
 #include <Windows.h>
 #include <TlHelp32.h>
@@ -51,10 +52,10 @@ void RemoteLinker::remote_load_module(HANDLE hProcess, std::string const &module
     SIZE_T nbBytesWritten;
     LPVOID rszModule = VirtualAllocEx(hProcess, NULL, module.length() + 1, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
     if (!rszModule) {
-        throw win::Win32Exception(GetLastError());
+        throw std::system_error(GetLastError(), std::generic_category());
     }
     if (!WriteProcessMemory(hProcess, rszModule, module.c_str(), module.length() + 1, &nbBytesWritten)) {
-        throw win::Win32Exception(GetLastError());
+        throw std::system_error(GetLastError(), std::generic_category());
     }
     if (nbBytesWritten != module.length() + 1) {
         throw std::logic_error("number of bytes written to the remote process doesn't equal to module string size");
@@ -70,7 +71,7 @@ void RemoteLinker::remote_load_module(HANDLE hProcess, std::string const &module
         NULL
     );
     if (!hLoadLibThread) {
-        throw win::Win32Exception(GetLastError());
+        throw std::system_error(GetLastError(), std::generic_category());
     }
     DWORD result = WaitForSingleObject(hLoadLibThread, REMOTE_LOAD_LIBRARY_TIMEOUT);
     switch (result) {
@@ -80,13 +81,13 @@ void RemoteLinker::remote_load_module(HANDLE hProcess, std::string const &module
         throw std::logic_error("waiting time for remote library get loaded has timed out.");
         break;
     case WAIT_FAILED:
-        throw win::Win32Exception(GetLastError());
+        throw std::system_error(GetLastError(), std::generic_category());
         break;
     default:
         throw std::logic_error("WaitForSingleObject returned unexpected value");
     }
     if (!VirtualFreeEx(hProcess, rszModule, 0, MEM_RELEASE)) {
-        throw win::Win32Exception(GetLastError());
+        throw std::system_error(GetLastError(), std::generic_category());
     }
 }
 
@@ -102,7 +103,7 @@ void RemoteLinker::remote_free_module(HANDLE hProcess, HMODULE hModule) {
         NULL
     );
     if (!hFreeLibThread) {
-        throw win::Win32Exception(GetLastError());
+        throw std::system_error(GetLastError(), std::generic_category());
     }
     DWORD result = WaitForSingleObject(hFreeLibThread, REMOTE_FREE_LIBRARY_TIMEOUT);
     switch (result) {
@@ -112,7 +113,7 @@ void RemoteLinker::remote_free_module(HANDLE hProcess, HMODULE hModule) {
         throw std::logic_error("waiting time for remote library get freed has timed out.");
         break;
     case WAIT_FAILED:
-        throw win::Win32Exception(GetLastError());
+        throw std::system_error(GetLastError(), std::generic_category());
         break;
     default:
         throw std::logic_error("WaitForSingleObject returned unexpected value");
@@ -129,7 +130,7 @@ HMODULE RemoteLinker::find_remote_module_handle(HANDLE hProcess, std::string con
             errcode = GetLastError();
     } while (!retry && errcode == ERROR_BAD_LENGTH);
     if (!hModuleSnapshot) {
-        throw win::Win32Exception(GetLastError());
+        throw std::system_error(GetLastError(), std::generic_category());
     }
     
     bool found = false;
@@ -144,7 +145,7 @@ HMODULE RemoteLinker::find_remote_module_handle(HANDLE hProcess, std::string con
     CloseHandle(hModuleSnapshot);
     if (!found) {
         if (GetLastError() != ERROR_NO_MORE_FILES) {
-            throw win::Win32Exception(GetLastError());
+            throw std::system_error(GetLastError(), std::generic_category());
         } else {
             throw std::logic_error("failed to find just-loaded remote library");
         }
@@ -156,7 +157,7 @@ void RemoteLinker::unlink(Library &library) {
     Linker::unlink(library);
     DWORD exitCode;
     if (!GetExitCodeProcess(library.process, &exitCode)) {
-        throw win::Win32Exception(GetLastError());
+        throw std::system_error(GetLastError(), std::generic_category());
     }
     if (exitCode == STILL_ACTIVE) {
         for (auto it = remote_module_handles_.begin(); it != remote_module_handles_.end(); ) {

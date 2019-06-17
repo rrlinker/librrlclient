@@ -1,5 +1,4 @@
 #include "locallinker.hpp"
-#include "win32exception.hpp"
 
 using namespace rrl;
 

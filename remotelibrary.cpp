@@ -1,5 +1,7 @@
 #include "remotelibrary.hpp"
 
+#include <system_error>
+
 using namespace rrl;
 
 RemoteLibrary::RemoteLibrary(HANDLE process, std::string const &name)
@@ -26,7 +28,7 @@ DWORD RemoteLibrary::RemoteSymbol::stdcall(LPVOID arg, DWORD timeout) const {
         NULL
     );
     if (!hThread) {
-        throw win::Win32Exception(GetLastError());
+        throw std::system_error(GetLastError(), std::generic_category());
     }
     DWORD result = WaitForSingleObject(hThread, timeout);
     switch (result) {
@@ -36,10 +38,10 @@ DWORD RemoteLibrary::RemoteSymbol::stdcall(LPVOID arg, DWORD timeout) const {
         throw std::runtime_error("waiting for stdcall result timed out");
     case WAIT_FAILED:
     default:
-        throw win::Win32Exception(GetLastError());
+        throw std::system_error(GetLastError(), std::generic_category());
     }
     if (!GetExitCodeThread(hThread, &exitCode)) {
-        throw win::Win32Exception(GetLastError());
+        throw std::system_error(GetLastError(), std::generic_category());
     }
     return exitCode;
 }
