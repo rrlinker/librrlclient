@@ -1,6 +1,6 @@
 #include "linker.hpp"
 
-#include <system_error>
+#include "win32_error.hpp"
 
 using namespace rrl;
 
@@ -44,7 +44,7 @@ uintptr_t Linker::reserve_memory(Library &library, size_t size) const {
         VirtualAllocEx(library.process, NULL, size, MEM_RESERVE, PAGE_NOACCESS)
         );
     if (!address) {
-        throw std::system_error(GetLastError(), std::generic_category());
+        throw win::Win32Error(GetLastError());
     }
     library.add_memory_space(reinterpret_cast<LPVOID>(address), size);
     return address;
@@ -56,16 +56,16 @@ void Linker::commit_memory(Library &library, uintptr_t address, std::vector<std:
     LPVOID ptr = reinterpret_cast<LPVOID>(address);
     LPVOID new_ptr = VirtualAllocEx(library.process, ptr, memory.size(), MEM_COMMIT, PAGE_READWRITE);
     if (new_ptr != ptr) {
-        throw std::system_error(GetLastError(), std::generic_category());
+        throw win::Win32Error(GetLastError());
     }
     if (!WriteProcessMemory(library.process, ptr, memory.data(), memory.size(), &nbBytesWritten)) {
-        throw std::system_error(GetLastError(), std::generic_category());
+        throw win::Win32Error(GetLastError());
     }
     if (memory.size() != nbBytesWritten) {
         throw std::logic_error("commit_memory failed to write all buffer bytes");
     }
     if (!VirtualProtectEx(library.process, ptr, memory.size(), protection, &old_prot)) {
-        throw std::system_error(GetLastError(), std::generic_category());
+        throw win::Win32Error(GetLastError());
     }
 }
 
@@ -84,7 +84,7 @@ void Linker::create_thread(Library &library, uintptr_t address) const {
         NULL
     );
     if (!hThread) {
-        throw std::system_error(GetLastError(), std::generic_category());
+        throw win::Win32Error(GetLastError());
     }
     library.add_thread(hThread);
 }

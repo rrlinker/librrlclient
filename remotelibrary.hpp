@@ -1,6 +1,6 @@
 #pragma once
 
-#include <system_error>
+#include "win32_error.hpp"
 
 #include "library.hpp"
 
@@ -37,7 +37,7 @@ namespace rrl {
                     DWORD nbRead;
                     T value;
                     if (!ReadProcessMemory(process, reinterpret_cast<LPCVOID>(address), reinterpret_cast<LPVOID>(&value), sizeof(value), &nbRead)) {
-                        throw std::system_error(GetLastError(), std::generic_category());
+                        throw win::Win32Error(GetLastError());
                     }
                     if (nbRead != sizeof(value)) {
                         throw std::runtime_error("not all bytes of RemoteValue have been read!");
@@ -47,7 +47,7 @@ namespace rrl {
                 T&& operator=(T &&value) {
                     DWORD nbWrite;
                     if (!WriteProcessMemory(process, reinterpret_cast<LPVOID>(address), reinterpret_cast<LPCVOID>(&value), sizeof(value), &nbWrite)) {
-                        throw std::system_error(GetLastError(), std::generic_category());
+                        throw win::Win32Error(GetLastError());
                     }
                     if (nbWrite != sizeof(value)) {
                         throw std::runtime_error("not all bytes of RemoteValue have been written!");
@@ -70,7 +70,7 @@ namespace rrl {
                     DWORD nbRead;
                     std::vector<T> array(size);
                     if (!ReadProcessMemory(process, reinterpret_cast<LPCVOID>(address), reinterpret_cast<LPVOID>(array.data()), array.size() * sizeof(T), &nbRead)) {
-                        throw std::system_error(GetLastError(), std::generic_category());
+                        throw win::Win32Error(GetLastError());
                     }
                     if (nbRead != array.size() * sizeof(T)) {
                         throw std::runtime_error("not all bytes of RemoteArray have been read!");
@@ -80,7 +80,7 @@ namespace rrl {
                 void write(T const *data, size_t size) {
                     DWORD nbWrite;
                     if (!WriteProcessMemory(process, reinterpret_cast<LPVOID>(address), reinterpret_cast<LPCVOID>(data), size * sizeof(T), &nbWrite)) {
-                        throw std::system_error(GetLastError(), std::generic_category());
+                        throw win::Win32Error(GetLastError());
                     }
                     if (nbWrite != size * sizeof(T)) {
                         throw std::runtime_error("not all bytes of RemoteArray have been written!");

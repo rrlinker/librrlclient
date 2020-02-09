@@ -1,6 +1,6 @@
 #include "library.hpp"
 
-#include <system_error>
+#include "win32_error.hpp"
 
 using namespace rrl;
 
@@ -62,13 +62,13 @@ void Library::unlink() {
     }
     DWORD exitCode;
     if (!GetExitCodeProcess(process, &exitCode)) {
-        throw std::system_error(GetLastError(), std::generic_category());
+        throw win::Win32Error(GetLastError());
     }
     if (exitCode == STILL_ACTIVE) {
         // Terminate all threads
         for (auto it = threads_.begin(); it != threads_.end(); ) {
             if (!TerminateThread(*it, UNLINK_THREAD_EXIT_CODE)) {
-                throw std::system_error(GetLastError(), std::generic_category());
+                throw win::Win32Error(GetLastError());
             }
             CloseHandle(*it);
             it = threads_.erase(it);
@@ -76,7 +76,7 @@ void Library::unlink() {
         // Free memory spaces
         for (auto it = memory_spaces_.begin(); it != memory_spaces_.end(); ) {
             if (!VirtualFreeEx(process, it->first, 0, MEM_RELEASE)) {
-                throw std::system_error(GetLastError(), std::generic_category());
+                throw win::Win32Error(GetLastError());
             }
             it = memory_spaces_.erase(it);
         }
@@ -90,7 +90,7 @@ void Library::unlink() {
     // Free modules
     for (auto it = module_dependencies_.begin(); it != module_dependencies_.end(); ) {
         if (!FreeLibrary(it->second)) {
-            throw std::system_error(GetLastError(), std::generic_category());
+            throw win::Win32Error(GetLastError());
         }
         it = module_dependencies_.erase(it);
     }
