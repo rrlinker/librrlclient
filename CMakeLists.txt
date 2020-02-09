@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(
-    libclient
+    librrlclient
     VERSION 0.1
     DESCRIPTION "Remote Run-time Linker client library."
     LANGUAGES CXX
