@@ -1,8 +1,8 @@
 #pragma once
 
-#include <librrlcom/courier.hpp>
-#include "linker.hpp"
-#include "library.hpp"
+#include <rrlinker/com/courier.hpp>
+#include <rrlinker/client/linker.hpp>
+#include <rrlinker/client/library.hpp>
 
 namespace rrl {
 

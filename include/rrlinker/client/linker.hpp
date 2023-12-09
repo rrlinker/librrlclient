@@ -1,15 +1,15 @@
 #pragma once
 
+#include <rrlinker/client/library.hpp>
+#include <rrlinker/client/linkage.hpp>
+
 #include <string>
 #include <unordered_map>
 #include <list>
 #include <functional>
 #include <cstdint>
 
-#include <Windows.h>
-
-#include "library.hpp"
-#include "linkage.hpp"
+#include <windows.h>
 
 namespace rrl {
 

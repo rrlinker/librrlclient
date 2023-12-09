@@ -1,8 +1,8 @@
 #pragma once
 
-#include "linker.hpp"
+#include <rrlinker/client/linker.hpp>
 
-#include <Windows.h>
+#include <windows.h>
 
 namespace rrl {
 

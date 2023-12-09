@@ -1,9 +1,9 @@
-#include "remotelinker.hpp"
+#include <rrlinker/client/remotelinker.hpp>
 
-#include "win32_error.hpp"
+#include <rrlinker/client/win32_error.hpp>
 
-#include <Windows.h>
-#include <TlHelp32.h>
+#include <windows.h>
+#include <tlhelp32.h>
 
 using namespace rrl;
 
@@ -21,7 +21,7 @@ uintptr_t RemoteLinker::resolve_symbol(Library &library, std::string const &symb
         // Try Win32 API first
         HMODULE hLocalHandle = get_module_handle(library, symbol_library);
         HMODULE hRemoteHandle = get_remote_module_handle(library, symbol_library);
-        if ((proc = reinterpret_cast<uintptr_t>(GetProcAddress(hLocalHandle, symbol_name.c_str()))) != NULL) {
+        if ((proc = reinterpret_cast<uintptr_t>(GetProcAddress(hLocalHandle, symbol_name.c_str()))) != 0) {
             library.add_module_dependency(symbol_library, hLocalHandle);
             return reinterpret_cast<uintptr_t>(hRemoteHandle)
                 + (proc - reinterpret_cast<uintptr_t>(hLocalHandle));

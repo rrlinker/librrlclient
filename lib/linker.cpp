@@ -1,6 +1,6 @@
-#include "linker.hpp"
+#include <rrlinker/client/linker.hpp>
 
-#include "win32_error.hpp"
+#include <rrlinker/client/win32_error.hpp>
 
 using namespace rrl;
 

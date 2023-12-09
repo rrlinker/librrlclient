@@ -1,5 +1,7 @@
-#include "librarian.hpp"
-#include <librrlcom/bound_check.hpp>
+#include <rrlinker/client/librarian.hpp>
+
+#include <rrlinker/com/bound_check.hpp>
+
 #include <stdexcept>
 
 using namespace rrl;

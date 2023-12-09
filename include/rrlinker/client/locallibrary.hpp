@@ -1,6 +1,6 @@
 #pragma once
 
-#include "library.hpp"
+#include <rrlinker/client/library.hpp>
 
 namespace rrl {
 

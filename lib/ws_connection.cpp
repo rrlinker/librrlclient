@@ -1,8 +1,7 @@
 #include <iostream>
 
-#include "win32_error.hpp"
-
-#include "ws_connection.hpp"
+#include <rrlinker/client/ws_connection.hpp>
+#include <rrlinker/client/win32_error.hpp>
 
 using namespace rrl;
 using namespace rrl::win;

@@ -7,27 +7,32 @@ project(
     LANGUAGES CXX
 )
 
-include("${CMAKE_SOURCE_DIR}/../cmake/find_libs_dir.cmake")
-include("${CMAKE_SOURCE_DIR}/../cmake/find_arch.cmake")
-
 file(GLOB SOURCE_FILES
-    "*.cpp"
+    "lib/librarian.cpp"
+    "lib/library.cpp"
+    "lib/linker.cpp"
+    "lib/locallibrary.cpp"
+    "lib/locallinker.cpp"
+    "lib/remotelibrary.cpp"
+    "lib/remotelinker.cpp"
+    "lib/win32_error.cpp"
+    "lib/ws_connection.cpp"
 )
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
 set_target_properties(
     ${PROJECT_NAME} PROPERTIES
-    CXX_STANDARD 17
+    CXX_STANDARD 20
     CXX_STANDARD_REQUIRED ON
-)
-
-target_link_libraries(
-    ${PROJECT_NAME}
-    PRIVATE ws2_32
 )
 
 target_include_directories(
     ${PROJECT_NAME}
-    PRIVATE "${PROJECT_SOURCE_DIR}/.."
+    PUBLIC include
+)
+
+target_link_libraries(
+    ${PROJECT_NAME}
+    PUBLIC ws2_32 librrlcom
 )

@@ -1,4 +1,4 @@
-#include "locallibrary.hpp"
+#include <rrlinker/client/locallibrary.hpp>
 
 #include <stdexcept>
 

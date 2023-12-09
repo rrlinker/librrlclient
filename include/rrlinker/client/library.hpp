@@ -1,14 +1,14 @@
 #pragma once
 
+#include <rrlinker/client/linkage.hpp>
+
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <memory>
 #include <cstdint>
 
-#include <Windows.h>
-
-#include "linkage.hpp"
+#include <windows.h>
 
 namespace rrl {
 

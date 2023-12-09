@@ -1,8 +1,7 @@
 #pragma once
 
-#include "win32_error.hpp"
-
-#include "library.hpp"
+#include <rrlinker/client/library.hpp>
+#include <rrlinker/client/win32_error.hpp>
 
 #include <vector>
 

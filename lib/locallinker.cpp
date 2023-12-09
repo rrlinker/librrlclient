@@ -1,4 +1,4 @@
-#include "locallinker.hpp"
+#include <rrlinker/client/locallinker.hpp>
 
 using namespace rrl;
 
@@ -12,7 +12,7 @@ uintptr_t LocalLinker::resolve_symbol(Library &library, std::string const &symbo
     if (!symbol_library.empty()) {
         HMODULE hModule = get_module_handle(library, symbol_library);
         // Try Win32 API first
-        if ((proc = reinterpret_cast<uintptr_t>(GetProcAddress(hModule, symbol_name.c_str()))) != NULL) {
+        if ((proc = reinterpret_cast<uintptr_t>(GetProcAddress(hModule, symbol_name.c_str()))) != 0) {
             library.add_module_dependency(symbol_library, hModule);
             return proc;
         }

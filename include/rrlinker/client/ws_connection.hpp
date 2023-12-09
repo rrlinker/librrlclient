@@ -1,9 +1,9 @@
-#include <librrlcom/connection.hpp>
+#include <rrlinker/com/connection.hpp>
 
-#include <WinSock2.h>
-#include <Ws2ipdef.h>
+#include <winsock2.h>
+#include <ws2ipdef.h>
 #include <ws2tcpip.h>
-#include <Mstcpip.h>
+#include <mstcpip.h>
 
 namespace rrl::win {
 

@@ -1,8 +1,8 @@
-#include "win32_error.hpp"
+#include <rrlinker/client/win32_error.hpp>
 
 #include <vector>
 
-#include <Windows.h>
+#include <windows.h>
 
 using namespace rrl::win;
 
